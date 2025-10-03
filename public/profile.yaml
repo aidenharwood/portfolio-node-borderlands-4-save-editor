@@ -1,0 +1,791 @@
+inputprefs: 
+  toggle_zoom: false
+  toggle_crouch: true
+  toggle_sprint: true
+  enable_dash: true
+  censor_content: false
+  display_damage_numbers: true
+  look_sensitivity_horizontal: 1.0
+  look_sensitivity_vertical: 1.0
+  ads_sensitivity_horizontal: 1.0
+  ads_sensitivity_vertical: 1.0
+  motion_controls_look_sensitivity_horizontal: 1.0
+  motion_controls_look_sensitivity_vertical: 1.0
+  motion_controls_ads_sensitivity_horizontal: 1.0
+  motion_controls_ads_sensitivity_vertical: 1.0
+  motion_controls_setting: 0
+  jcms_look_sensitivity_horizontal: 1.0
+  jcms_look_sensitivity_vertical: 1.0
+  jcms_ads_sensitivity_horizontal: 1.0
+  jcms_ads_sensitivity_vertical: 1.0
+  jcms_enable_control: 1
+  controller_ads_snap: true
+  mouse_ads_snap: false
+  controller_aim_assist: true
+  controller_aim_recentering: false
+  camera_head_bob: 1.0
+  mantle_with_forward: true
+  invert_look_x_axis_kbm: false
+  invert_look_y_axis_kbm: false
+  invert_move_x_axis_kbm: false
+  invert_move_y_axis_kbm: false
+  invert_look_x_axis_gamepad: false
+  invert_look_y_axis_gamepad: false
+  invert_move_x_axis_gamepad: false
+  invert_move_y_axis_gamepad: false
+  left_stick_radial_dead_zone_inner: 0.25
+  left_stick_radial_dead_zone_outer: 0.1
+  left_stick_axial_dead_zone_inner: 7.5
+  left_stick_axial_dead_zone_outer: 15.0
+  right_stick_radial_dead_zone_inner: 0.25
+  right_stick_radial_dead_zone_outer: 0.1
+  right_stick_axial_dead_zone_inner: 7.5
+  right_stick_axial_dead_zone_outer: 15.0
+  use_toggle_glide_kbm: false
+  use_toggle_glide_gamepad: true
+  crosshair_position: 1
+  compass_vertical_indicator_config: 0
+  radar_enabled: 1
+  vehicle_fov: 110.0
+  map_viewer_zoom_speed: 1.0
+  grapple_pitch_correction: true
+  on_foot_gamepad_stick_preset: 
+  is_southpaw_on_foot_gamepad_stick_preset_active: false
+  on_vehicle_gamepad_stick_preset: 
+  is_southpaw_on_vehicle_gamepad_stick_preset_active: false
+  rumble_enabled: true
+  camera_shake_intensity: 1.0
+  reactivetriggers_enabled: true
+  binding_profiles: 
+  - profile_identifier: InputUserSettings.Profiles.Default
+    class_path: /Script/EnhancedInput.EnhancedPlayerMappableKeyProfile
+    object_path: EnhancedPlayerMappableKeyProfile_2147480011
+    dirty_mappings: 
+    - mapping_name: action_kbm_melee
+      current_key_name: ThumbMouseButton
+      hardware_device_input_class_name: None
+      hardware_device_hardware_device_identifier: None
+      hardware_device_primary_device_type: 0
+      hardware_device_supported_features_mask: 0
+      slot: 1
+      localized: false
+    - mapping_name: action_kbm_melee_1s
+      current_key_name: ThumbMouseButton
+      hardware_device_input_class_name: None
+      hardware_device_hardware_device_identifier: None
+      hardware_device_primary_device_type: 0
+      hardware_device_supported_features_mask: 0
+      slot: 1
+      localized: false
+ui: 
+  default: true
+  user_preferences: 
+    safe_area: 
+      horizontal_ratio: 0.0
+      vertical_ratio: 0.0
+    font_scaling: 
+      menu: 0
+      hud: 0
+    color_blind_mode: 0
+    high_contrast_mode: 
+      hud: false
+      crosshair: false
+  subtitles: 
+    size: 1.0
+    speaker_color: 
+    - 0.147027
+    - 0.577581
+    - 0.930111
+    - 1.0
+    text_opacity: 1.0
+    text_color: 
+    - 0.775822
+    - 0.693872
+    - 0.617207
+    - 1.0
+    background_opacity: 0.5
+    background_color: 
+    - 0.0
+    - 0.0
+    - 0.0
+    - 1.0
+    background_enabled: true
+    show_subtitle: true
+    show_speaker: true
+    use_bold_text: false
+  cursor_preferences: 
+    invert_x_axis: false
+    invert_y_axis: false
+    sensitivity: 0.8
+    friction_default: 0.4
+    show_idle_flash: false
+    max_idle_time: 60.0
+    pc_scroll_sensitivity: 5
+  first_time_calibration: 
+    shown_first_time_calibration: true
+  eula_data: 
+    accepted_eulas: 
+    - 22.1.2
+    - 23.1.2
+  contentwarning_data: 
+    photosensitivity_warning: true
+  tutorials: 
+    menu_tutorials_enabled: false
+    hud_tutorials_enabled: false
+    seen_menu_tutorials: 
+    - menu_tutorial_equipment
+    - menu_tutorial_reward_center
+    - menu_tutorial_skills_intro
+    - menu_tutorial_skills_action_and_points
+    - menu_tutorial_missionlog_intro
+    - menu_tutorial_missionlog_replay
+    - menu_tutorial_big_map_intro
+    - menu_tutorial_vending_machine
+    - menu_tutorial_skills_augments
+    - menu_tutorial_echo_upgrades
+    - menu_tutorial_respec
+    - menu_tutorial_lost_loot
+    - menu_tutorial_firmware
+    seen_hud_tutorials: 
+    - stats.tutorial.Walk
+    - stats.tutorial.checkpoints
+    - stats.tutorial.weapon_fire
+    - stats.tutorial.weapon_reload
+    - stats.tutorial.Repkit
+    - stats.tutorial.Jump
+    - stats.tutorial.double_jump
+    - stats.tutorial.Grapple
+    - stats.tutorial.Crouch
+    - stats.tutorial.Climb
+    - stats.tutorial.Shield
+    - stats.tutorial.actionskill_unlock
+    - stats.tutorial.Revive
+    - stats.tutorial.echo_location
+    - stats.tutorial.Glide
+    - stats.tutorial.Melee
+    - stats.tutorial.activity_safehouse_discovery
+    - stats.tutorial.activity_safehouse_capture
+    - stats.tutorial.sdu_tokens
+    - stats.tutorial.activity_silo_discovery
+    - stats.tutorial.collectible_speaker_discovery
+    - stats.tutorial.collectible_echologgeneral_discovery
+    - stats.tutorial.Vehicle
+    - stats.tutorial.collectible_vaultsymbol_discovery
+    - stats.tutorial.gamesystem_respecmachine
+    - stats.tutorial.ground_pound
+    - stats.tutorial.activity_crawler_discovery
+    - stats.tutorial.vault_tracking
+    - stats.tutorial.misc_combatchest_discovery
+    - stats.tutorial.activity_orderbunker_locked
+    - stats.tutorial.collectible_cache_discovery
+    - stats.tutorial.activity_augermine_discovery
+    - stats.tutorial.activity_augermine_locked
+    - stats.tutorial.orderbunkers
+    - stats.tutorial.activity_orderbunker_discovery
+    - stats.tutorial.collectible_lostcapsule_discovery
+    - stats.tutorial.activity_drillsite_discovery
+    - stats.tutorial.collectible_safe_discovery
+    - stats.tutorial.collectible_shrine_discovery
+    - stats.tutorial.augermines
+  crosshair_settings: 
+    crosshair_friendly_color: 
+    - 0.226316
+    - 0.938686
+    - 0.461698
+    - 1.0
+    crosshair_enemy_color: 
+    - 1.0
+    - 0.142361
+    - 0.167265
+    - 1.0
+    crosshair_neutral_color: 
+    - 1.0
+    - 1.0
+    - 1.0
+    - 1.0
+onlineprefs: 
+  crossplaypref: 1
+  networktypepref: 2
+  networkprivacypref: 1
+  friendsyncpref: true
+  favoritefriends: 
+  hide_nat_dialog: false
+  hide_age_dialog: false
+  pushtotalkpref: true
+  voiceenabledpref: true
+  textchatenabledpref: true
+  incomingvoicevolume: 1.0
+  profanityfilterpref: true
+  streamer_mode_local_pref: false
+  streamer_mode_remote_pref: false
+  hide_promotional_content_pref: false
+  matchmakingautoregionselectpref: true
+  matchmakingregionspref: 
+  favoritefriendsnotifications: true
+  charactermemory: 
+  - partyleader: 'Shift:1735504341992312135'
+    charguid: 82B65E14472993E66AA1F3A57CEE7538
+  hide_character_memory_dialog: false
+  enable_automatic_character_switching: 
+domains: 
+  local: 
+    characters_selected: C_1
+    characters: 
+      c_1: 
+    shared: 
+      inventory: 
+        items: 
+          bank: 
+            slot_0: 
+              serial: '@Ugr%Scm/z+aM(zhas#5K%1KJ%;3J%l='
+              state_flags: 9
+            slot_1: 
+              serial: '@Ugxp/&2?hot44nr$gDO;_(x6JBQldIl2ek/J3jq'
+              state_flags: 9
+            slot_2: 
+              serial: '@Ugfs(8Fme!KG*)mdh(Y2vD0PkBZTJ^f`?AaDvYQ;1=fCE(d`?fd;qvl)o_@O<RH6#K3SyA>4N6_`u$=xChvo7z`wNSG&1w0Zo^HeC<@r4Qc2}uMU1/<073vi#7it&k9cm<MCE{Uhya5'
+              state_flags: 9
+            slot_3: 
+              serial: '@Ugvelk2?hotO#ctsiz?Kj`l5cKdZIpc26YE@3RMbK3zZjD5AiTIn*a'
+              state_flags: 9
+            slot_4: 
+              serial: '@Ugr$fEm/%P$!bk(PLUrm>VNhdGXHct9=^Fq'
+              state_flags: 9
+            slot_5: 
+              serial: '@Ugr$fEm/%P$!bk(PLUrm>VNhdGXHct9=^Fq'
+              state_flags: 9
+            slot_6: 
+              serial: '@Ugr%Scm/%Dy!t/Y>M^&nQZ9u!5Q2S`+$e>05'
+              state_flags: 9
+            slot_7: 
+              serial: '@Ugd77*Ffb5d{4Y>yRG/{ps6!1K3W;iodWnjO`cxlOF4Q>0!`N&B'
+              state_flags: 9
+            slot_8: 
+              serial: '@Ugd_t@Ffb5dtR>K0RG/))sJf_psC%e=sJ^H>s8gs?s9LC$h=;M+1O'
+              state_flags: 9
+            slot_9: 
+              serial: '@Ugxp/&2?hotjK2mtgDO;_7L^875_J-l64j/Zs8pz2sB(yhvDpL'
+              state_flags: 9
+            slot_10: 
+              serial: '@Uge8jxm/$Qa!t_/6Nfl~+c/es~-%J1'
+              state_flags: 9
+            slot_11: 
+              serial: '@Ugr$Q9m/$Qa!a%H`NgZl^aX^(?UrYc'
+              state_flags: 9
+            slot_12: 
+              serial: '@Ugw$Yw2?hot%>NGhhbmN~4mEVBA8H?}C8/?%P`Oa!P{RTM'
+              state_flags: 9
+            slot_13: 
+              serial: '@Ugd_t@Ffb5ddOXltRG}7?7S$Ft4;2sf4)qpQ2h/7l2UQDI4gm'
+              state_flags: 9
+            slot_14: 
+              serial: '@Ugy>*^2?hot%%%()RG/`esGF!uwLwj)CaM)`7pfQP9cmu}'
+              state_flags: 9
+            slot_15: 
+              serial: '@Ugw$Yw2?hotj26&8RG}7isG&psP%Tj_QJtEDs)ZVd8WsQ'
+              state_flags: 9
+            slot_16: 
+              serial: '@Ugfs(8Ffb5dW))CO)Swczs9{6%P@mdVr^2A-pi-e$p~9isp-Q4wA^-'
+              state_flags: 9
+            slot_17: 
+              serial: '@Ugw$Yw5hh0gkD?i5ey2^>_}zwoVYM&2d@j4mVR`;*PRq;pw/rfp7Immb4H@o3Gsyf-n=W`*PXCI-a(S8kg~`6=w7h(O%h$z3b?Of46si>J7U~>o2nTo=n@s='
+              state_flags: 9
+            slot_18: 
+              serial: '@Ugw$Yw5hh0gkD?i5ey2^>_}zwoVYM&2d@j4mVR`;*PRq;pw/rfp7Immb4H@o3Gsyf-n=W`*PXCI-a(S8kg~`6=w7h(O%h$z3b?Of46si>J7U~>o2nTo=n@s='
+              state_flags: 9
+            slot_19: 
+              serial: '@Ugw$Yw5hh0gkD?i5ey2^>_}zwoVYM&2d@j4mVR`;*PRq;pw/rfp7Immb4H@o3Gsyf-n=W`*PXCI-a(S8kg~`6=w7h(O%h$z3b?Of46si>J7U~>o2nTo=n@s='
+              state_flags: 9
+            slot_20: 
+              serial: '@Ugw$Yw5hh0gkD?i5ey2^>_}zwoVYM&2d@j4mVR`;*PRq;pw/rfp7Immb4H@o3Gsyf-n=W`*PXCI-a(S8kg~`6=w7h(O%h$z3b?Of46si>J7U~>o2nTo=n@s='
+              state_flags: 9
+            slot_21: 
+              serial: '@Ugr%DXm/$Qa!X<;yqbjw&JD^6bFDC#'
+              state_flags: 9
+            slot_22: 
+              serial: '@Uge8>*m/$Qa!dO_KNkwXXG&dv@00'
+              state_flags: 9
+            slot_23: 
+              serial: '@Ugr$iFm/$Qa!rYIbP^e3F>Qh671_1'
+              state_flags: 9
+            slot_24: 
+              serial: '@Ugr$fEm/$Qa!uWciRH#msL5)ET8;XSh'
+              state_flags: 9
+            slot_25: 
+              serial: '@UgeU_{FftHfI2X`7RG/(vT&N!EB`ORm4k{0-7U~{qhywr'
+              state_flags: 9
+            slot_26: 
+              serial: '@Ugv4Ng2}TAYOuYn(hf0TP)S-q8y+hqY<wJEU4r&i-6{;oz'
+              state_flags: 9
+            slot_27: 
+              serial: '@Ugr$fEm/%1u!d$ALQm9UiL7hRJLI3'
+              state_flags: 9
+            slot_28: 
+              serial: '@UgggUGFgg%nW<=0UR83T(7FDQtsC=kS4Qdo>7OEEl'
+              state_flags: 9
+            slot_29: 
+              serial: '@UgbV{rFgg%nJSR/2RG}J`s72jG%/pFI)kAG64{8)D6zUdg90C'
+              state_flags: 9
+            slot_30: 
+              serial: '@Ugv?-o2}TDZ%)JRZgDO;_7S*UBLupVaQ7KU?QJw08YK2;bs)ag-00'
+              state_flags: 9
+            slot_31: 
+              serial: '@UgzR8/2}TDZjK&NaRG}JmsF/orU8)Xh6{;Nq'
+              state_flags: 9
+            slot_32: 
+              serial: '@Ugr$K7m/%7w!su<FHmFYBLCrC!F$Q(RpyC=-O@o?oP%#gxb~L/a4*&'
+              state_flags: 9
+            slot_33: 
+              serial: '@Ugr$%Mm/%1u!q`}#K`km$j~Y5u2LS'
+              state_flags: 9
+            slot_34: 
+              serial: '@Uge8&&m/$uk!q9!7NWCv7s8EA?9}O4T3jh'
+              state_flags: 9
+            slot_35: 
+              serial: '@Ugb)KvFgg(75@aYWs!)e&)K64T)Ev/vR3FqU1O'
+              state_flags: 9
+            slot_36: 
+              serial: '@Uge8pzm/$Qa!bm!xI;ciXDpHr4g8%'
+              state_flags: 9
+            slot_37: 
+              serial: '@Ugvelk2?hotjD!gqi7M2hh6;s5-9&XN4=NOD6si`g9^zqaqyY'
+              state_flags: 9
+            slot_38: 
+              serial: '@Uge(J0Ffb5dCT~z!RG}6XsgkIZsFkQoy+Qp!okHzG{X_r'
+              state_flags: 9
+            slot_39: 
+              serial: '@UgzR8/2?hot4Brf@i7Hg0Zlc1VI<=`gs6VJzs9vaFsCB4$2m'
+              state_flags: 9
+            slot_40: 
+              serial: '@Ugr$fEm/%P$!bk(PLUrm>VNhdGXHct9=^Fq'
+              state_flags: 9
+            slot_41: 
+              serial: '@Uge8jxm/%1u!b~{ea){sZ^Y<(-yTj!2_Z%jl%XHWH-G+Z*wJ*DTF1yKLdHze6hu!mbdOlCT-4$wmb-?KmzvbueSzdOB$>r}kOg@+CE_hf@/H8w0_B%}e*4^oNz5J!i!/r)IJ)fuF?$$@MNdf='
+              state_flags: 9
+            slot_42: 
+              serial: '@Ugfs(8Fgg%nrYF!$)SwnMTxch%Q(;h>%7aRUdWFh`dWXu100'
+              state_flags: 9
+            slot_43: 
+              serial: '@Ugg66CFgg%nGGEXsRG~_t1~mt@3-uBK'
+              state_flags: 9
+            slot_44: 
+              serial: '@Ugv4Ng2}TDZ3`S5-R610nh70XP-9zm/ZE6l`6e<*I73wAe'
+              state_flags: 9
+            slot_45: 
+              serial: '@Ugvelk2}TDZ%>N3Ciz-y24%HGh6IBz{sXVArs8Fa/sFkR9sCKB62m'
+              state_flags: 9
+            slot_46: 
+              serial: '@Ugw$Yw2}TDZ%*PMPhbq*f?x8xB2Q>;63RMer4gm'
+              state_flags: 9
+            slot_47: 
+              serial: '@UgxFw!2}TDZOkPl2RG}KRsG&n/QJt!T>V+DI+J_oS0RR'
+              state_flags: 9
+            slot_48: 
+              serial: '@Ugydj=2}TDZjE@YuhbmN~4z;KuLupVYQ6o`3Q72K8>eL<7A5<t*F4Q^HkOlw'
+              state_flags: 9
+            slot_49: 
+              serial: '@Ugr$!Lm/%1u!qmB-L{+MNG&ux{Tmb'
+              state_flags: 1
+            slot_50: 
+              serial: '@Uguq~c3C0H^%=8L6i7Hg04mD&bCh8_?EvhD}Ql099T7_zb%7sdYT8G+)00'
+              state_flags: 9
+            slot_51: 
+              serial: '@UgdhV<Fg_4r?k3PWRG/))sC1~Bs7Z}M)j{<^#X^Ncg+%}'
+              state_flags: 9
+            slot_52: 
+              serial: '@Ugd77*Fg_4rx=zp;RG}I*T&N7HBq}9pC29=n4yqJt7iug5'
+              state_flags: 9
+            slot_53: 
+              serial: '@Uge8Xtm/%P$!ep4BNmXinb3l<=AB`Qs1ON'
+              state_flags: 9
+            slot_54: 
+              serial: '@Ugy3L+3C0H^%*F=Fi7Hg14s{bX4^<C!5A~@ss6D7vs8pz0sB#D'
+              state_flags: 9
+            slot_55: 
+              serial: '@Ugd77*Fg*}q@)yu(RG/))s74JHid0V2OVp>@pzfeXp=P1NApi'
+              state_flags: 1
+            slot_56: 
+              serial: '@UgggUGFgy@pupdxPR83T)4iytM4^<Bp57ntTs641ws9Oj'
+              state_flags: 9
+            slot_57: 
+              serial: '@Ugd77*Fg*}q@)yu(RG/))s74JHid0V2OVp>@pzfeXp=P1NApi'
+              state_flags: 1
+            slot_58: 
+              serial: '@Ugfs(8Fg_4rye)7nh(Y2vD0PkBZTJ^f`?AaDvYQ;1=fCE(d`?fd;qvl)o_@O<)S*{F3=+RVsS6&K)4$@dTwZ2>VX?0{EuYiVZMeKVpQqpMCiMnYsh+4gs8py~sCKA(2m'
+              state_flags: 9
+            slot_59: 
+              serial: '@Ugd77*Fg*}q@)yu(RG/))s74JHid0V2OVp>@pzfeXp=P1NApi'
+              state_flags: 1
+            slot_60: 
+              serial: '@Ugd77*Fg*}q@)yu(RG/))s74JHid0V2OVp>@pzfeXp=P1NApi'
+              state_flags: 1
+            slot_61: 
+              serial: '@Ugvelk2}TDZjP?y0i7M2h4mD&bB<d!rQ+rUUP`Oa`5C'
+              state_flags: 9
+            slot_62: 
+              serial: '@Ugr$)Nm/)}}!f1`4NkwXXG&)3z_>oHh'
+              state_flags: 9
+            slot_63: 
+              serial: '@Ugr%Scm/z+aM(zhas#5K%1KJ%;3J%l='
+              state_flags: 9
+            slot_64: 
+              serial: '@Uge8>*m/%1u!tl7DM^$QlbwG_;9}Oo#00'
+              state_flags: 9
+            slot_65: 
+              serial: '@Ugy3L+2}TYg4E6{bRG/)46ZH=j64ej&sWPZJs9LCSsCNh'
+              state_flags: 9
+            slot_66: 
+              serial: '@Ugydj=2}TDZOs@snhbq*f64j_f4H?RZ>WNy3YKeM@npCIqpiZGup=zPZp@wh('
+              state_flags: 9
+            slot_67: 
+              serial: '@Ugy3L+2}TDZ%pTB8RG}KRsF<jbs4%EJs8Fa;s9dOB2m'
+              state_flags: 9
+            slot_68: 
+              serial: '@Uge(J0Fgp-oVn<L/RG/{}sD7w_s7u8`?Ln17-9r6D00'
+              state_flags: 9
+            slot_69: 
+              serial: '@UgfIh4Fi;R-u5HjfRG}I*bSNHbBq/Il4r&i752_Vv90C'
+              state_flags: 9
+            slot_70: 
+              serial: '@Ugr$iFm/&tH!qhIHKd4J(s#ARs'
+              state_flags: 9
+            slot_71: 
+              serial: '@Ugr$Q9m/%Dy!f08bOC4%`cR-n19}OnC1po'
+              state_flags: 9
+            slot_72: 
+              serial: '@UgwSAs35EwE%%=#thw6t~)S(j9s9{5e8q}xGpxU77pjM$$p<*Eb'
+              state_flags: 9
+            slot_73: 
+              serial: '@Ugv4Ng35EwEOrHyihf0S!RHKFqy+h?g-9x=ZO=?qZP<K#uP_0lk5d'
+              state_flags: 9
+            slot_74: 
+              serial: '@UgggUGFgy@pupdxPR83T)4iytM4^<Bp57ntTs641ws9Oj'
+              state_flags: 9
+            slot_75: 
+              serial: '@UgggUGFgy@pa8FQ9R83T)78MgU4/NY!57ntTs5_`Us930!2m'
+              state_flags: 9
+            slot_76: 
+              serial: '@Ugg66CFgy@pW_D02RH0s>+M&*&)}b<07WD@82h/7l3-uBK'
+              state_flags: 9
+            slot_77: 
+              serial: '@Ugd_t@Fgy@pEFREVRG/`es6{oZEUGW+4JsBYB?1'
+              state_flags: 9
+            slot_78: 
+              serial: '@UgwSAs35EwEjGYV`iRy=1RHO2t&Z5eq!lJ^U_Mm#9(xKuZ00'
+              state_flags: 9
+            slot_79: 
+              serial: '@Ugv4Ng35EwEOy&d{R65k57Byt39V#U1CF)Y0T7z1J+Jyi'
+              state_flags: 9
+            slot_80: 
+              serial: '@UgxFw!2}TYgjFk;Ki7Hg1h7OfP%/zWqed-Kq4yq2S7b+a;9s&'
+              state_flags: 9
+            slot_81: 
+              serial: '@Ugr$Q9m/%P$!eEP_NgZl^cR-a/UrYc'
+              state_flags: 9
+            slot_82: 
+              serial: '@Ugxp/&3C0H^%-jb$gDTXa5/sv3615VwsXeGss9LCXsD20'
+              state_flags: 9
+            slot_83: 
+              serial: '@UgggUGFg_4rDrV44R83T)7FDQvsCcM*sClSP4XPAs7U~xQ'
+              state_flags: 9
+            slot_84: 
+              serial: '@Ugr%DXm/%P$!gQ~oNmXinbwH6?9}Oni1ON'
+              state_flags: 9
+            slot_85: 
+              serial: '@Ugv?-o3C0H^4DSj$gDO;_7S*UBLupVaQ7cg?QJdO>8igu_%7uD/00'
+              state_flags: 9
+            slot_86: 
+              serial: '@Uge8>*m/%P$!gQ#hM^$QlbwG_;UrYc'
+              state_flags: 9
+            slot_87: 
+              serial: '@Uge8>*m/%P$!eGdtNkwXXG&cm3AOH'
+              state_flags: 9
+            slot_88: 
+              serial: '@Ugvelk3C0H^jLioci7M2hh7E;8-9&9_4{8-E6{;4h9s&'
+              state_flags: 9
+            slot_89: 
+              serial: '@Ugxp/&3C0H^jGhV_RG/{Js5PjUs7>`jwL+~z-9n{900'
+              state_flags: 9
+            slot_90: 
+              serial: '@Ugfs(8Fh3Asa39c2)SwEr6V<6tZ7L2b6>1e~9O@k^Cjt'
+              state_flags: 9
+            slot_91: 
+              serial: '@Ugg66CFh3CC(tRius!*>`=}_xX=TMbui+Y3VgZhKIg(`^v'
+              state_flags: 9
+            slot_92: 
+              serial: '@Uge8jxm/%V&!e}g@Nfl~+cR-a/-%bD'
+              state_flags: 9
+            slot_93: 
+              serial: '@Ugr%Scm/%V&!X^LEqbk+DH=y0oq!4OfNKhjH'
+              state_flags: 9
+            slot_94: 
+              serial: '@Ugr$iFm/&nF!azQtKd4J}st+oCV*m'
+              state_flags: 9
+            slot_95: 
+              serial: '@Ugv4Ng2}TMcjP(bKhf0S!RHKFqy+h?g-9x=ZO{!CEP<2puP^(Zi5d'
+              state_flags: 9
+            slot_96: 
+              serial: '@UgeU_{Fj5fV5^rcwg*w!5p?Ii&s7}>E^+DA_{Xz/K00'
+              state_flags: 9
+            slot_97: 
+              serial: '@Ugy3L+2}TYgOw0%xRG}7C6V(qD615NYsWPZJs9LCV2m'
+              state_flags: 9
+            slot_98: 
+              serial: '@Uguq~c2}TYg4E+l_i7Hg08Z}fXCh8`tCTb39Q+rUQP@_<{Q0Y+j5C'
+              state_flags: 9
+            slot_99: 
+              serial: '@Ugr$iFm/)}}!sKkAKd4K6YUofORQkpM00'
+              state_flags: 9
+            slot_100: 
+              serial: '@Uge8Cmm/)}}!ql6fHK<SBPt{KCLd8POGN`$zw5ZzA_>f5e'
+              state_flags: 9
+            slot_101: 
+              serial: '@Ugr%1Tm/)}}!c2{zNWCv7s8Ex7A5AQ/D+&M'
+              state_flags: 1
+            slot_102: 
+              serial: '@UgfIh4Fme!KIDF7NRG/))sCcN7s4%EEs6MDas8y(42m'
+              state_flags: 1
+            slot_103: 
+              serial: '@Uge8jxm/)}}!h9^CNfl~+cR-a/-%J1'
+              state_flags: 1
+            slot_104: 
+              serial: '@Ugd_t@Fme##(pqROs!)fDiE4/Ahnk0~hkA>egBpbjg{p=6g#Z'
+              state_flags: 1
+            slot_105: 
+              serial: '@Ugy3L+2}TYgOtuf2i7Hg0VxmH#!l3e?LZL>Xa-nu100'
+              state_flags: 1
+            slot_106: 
+              serial: '@Uge8jxm/)}}!qEAkNfl~+aX^(?UrPW'
+              state_flags: 1
+            slot_107: 
+              serial: '@Uge8Usm/)}}!dSSVN4;++Xi)E?ktJ}2CIA'
+              state_flags: 1
+            slot_108: 
+              serial: '@Ugd_t@Fme!K?q<+hRG}7isGF#^sCuY)sJEy%s641ysB#D'
+              state_flags: 1
+            slot_109: 
+              serial: '@Ugr$)Nm/)}}!rXYENkwXXG&=-}+!0Oy'
+              state_flags: 1
+            slot_110: 
+              serial: '@Ugct)%Fme!K<af/IRG}7?4s{Y05;YRlsWzxPs8*<52m'
+              state_flags: 1
+            slot_111: 
+              serial: '@Ugvelk2}TYgOxF+Eiz?Ki`l5cKdZIp61~ms&3zZjj7c~z7'
+              state_flags: 1
+            slot_112: 
+              serial: '@Ugvelk2}TYgjFtn6iz-y2TB2^EYNBSMI<*It3bhKA3$+sU4%H4-5&-'
+              state_flags: 1
+            slot_113: 
+              serial: '@Ugfs(8Fme!KG*)mdh(Y2vD0PkBZTJ^f`?AaDvYQ;1=fCE(d`?fd;qvl)o_@O<RH6#K3SyA>4N6_`u$=xChvo7z`wNSG&1w0Zo^HeC<@r4Qc2}uMU1/<073vi#7it&k9cm<MCE{Uhya5'
+              state_flags: 1
+            slot_114: 
+              serial: '@Ugr$WBm/)}}!a%8@N)2j#Z$Oh;9}Oje1po'
+              state_flags: 1
+            slot_115: 
+              serial: '@UgbV{rFme!Kq8(6aRG}KRs7U=o%/lIU3~CQ56>1f#7HSs)'
+              state_flags: 1
+            slot_116: 
+              serial: '@Ugr$%Mm/)}}!bEMLIjBVq8;XMf'
+              state_flags: 1
+            slot_117: 
+              serial: '@Ugct)%Fme!Kq-4;b3bm+44IOHS%7@xi98@0E9#ks?'
+              state_flags: 1
+      last_weekly_reset: 1814400
+      blackmarket_items: 
+      - blackmarket_itemtype: MAL_HW
+        blackmarket_itemcomp: MAL_HW.comp_05_legendary_GammaVoid
+        blackmarket_gamestage: 50
+      - blackmarket_itemtype: jak_grenade_gadget
+        blackmarket_itemcomp: jak_grenade_gadget.comp_05_spinning_blade
+        blackmarket_gamestage: 50
+      blackmarket_usedpools: 
+      - 65664
+      - 0
+      - 0
+      blackmarket_trackerstate: false
+    unlockables: 
+      shared_progress: 
+        entries: 
+        - shared_progress.vault_hunter_level
+        - shared_progress.prologue_completed
+        - shared_progress.story_completed
+        - shared_progress.epilogue_started
+      unlockable_weapons: 
+        entries: 
+        - Unlockable_Weapons.Mat36_PreOrder
+        - Unlockable_Weapons.Mat01_Synthwave
+        - Unlockable_Weapons.Mat25_LocustGas
+        - Unlockable_Weapons.Mat13_Whiteout
+        - Unlockable_Weapons.Mat19_Meltdown
+        - Unlockable_Weapons.Mat27_GoldenPower
+        - Unlockable_Weapons.Mat17_DeadWood
+      unlockable_darksiren: 
+        entries: 
+        - Unlockable_DarkSiren.Skin24_PreOrder
+        - Unlockable_DarkSiren.Head23_CrashTestDummy
+        - Unlockable_DarkSiren.Head01_Prison
+        - Unlockable_DarkSiren.Body01_Prison
+        - Unlockable_DarkSiren.Skin01_Prison
+        - Unlockable_DarkSiren.Skin31_Koto
+        - Unlockable_DarkSiren.Skin02_Order
+        - Unlockable_DarkSiren.Skin05_Ripper
+        - Unlockable_DarkSiren.Skin25_Slimed
+        - Unlockable_DarkSiren.Head11_Ripper
+        - Unlockable_DarkSiren.Skin37_Maliwan
+        - Unlockable_DarkSiren.Head02_PigTails
+        - Unlockable_DarkSiren.Skin04_Tech
+        - Unlockable_DarkSiren.Skin06_Amara
+        - Unlockable_DarkSiren.Head05_BikeHelmet
+        - Unlockable_DarkSiren.Skin08_Corrupted
+        - Unlockable_DarkSiren.Skin07_RedHanded
+        - Unlockable_DarkSiren.Head12_Order
+        - Unlockable_DarkSiren.Skin29_Guardian
+        - Unlockable_DarkSiren.Skin03_Ghost
+        - Unlockable_DarkSiren.Head06_PunkMask
+        - Unlockable_DarkSiren.Skin30_Cute
+      unlockable_exosoldier: 
+        entries: 
+        - Unlockable_ExoSoldier.Skin24_PreOrder
+        - Unlockable_ExoSoldier.Head23_CrushTestDummy
+        - Unlockable_ExoSoldier.Head01_Prison
+        - Unlockable_ExoSoldier.Body01_Prison
+        - Unlockable_ExoSoldier.Skin01_Prison
+        - Unlockable_ExoSoldier.Skin31_Koto
+        - Unlockable_ExoSoldier.Skin02_Order
+        - Unlockable_ExoSoldier.Skin05_Ripper
+        - Unlockable_ExoSoldier.Skin25_Slimed
+        - Unlockable_ExoSoldier.Head11_Ripper
+        - Unlockable_ExoSoldier.Skin37_Maliwan
+        - Unlockable_ExoSoldier.Head03_Guerilla
+        - Unlockable_ExoSoldier.Skin04_Tech
+        - Unlockable_ExoSoldier.Skin06_Amara
+        - Unlockable_ExoSoldier.Head07_Helm
+        - Unlockable_ExoSoldier.Skin08_Corrupted
+        - Unlockable_ExoSoldier.Skin07_RedHanded
+        - Unlockable_ExoSoldier.Head12_Order
+        - Unlockable_ExoSoldier.Skin29_Guardian
+        - Unlockable_ExoSoldier.Skin03_Ghost
+        - Unlockable_ExoSoldier.Head04_TechHawk
+        - Unlockable_ExoSoldier.Skin30_Cute
+      unlockable_gravitar: 
+        entries: 
+        - Unlockable_Gravitar.Skin24_PreOrder
+        - Unlockable_Gravitar.Head23_CrushTestDummy
+        - Unlockable_Gravitar.Head01_Prison
+        - Unlockable_Gravitar.Body01_Prison
+        - Unlockable_Gravitar.Skin01_Prison
+        - Unlockable_Gravitar.Skin31_Koto
+        - Unlockable_Gravitar.Skin02_Order
+        - Unlockable_Gravitar.Skin05_Ripper
+        - Unlockable_Gravitar.Skin25_Slimed
+        - Unlockable_Gravitar.Head11_Ripper
+        - Unlockable_Gravitar.Skin37_Maliwan
+        - Unlockable_Gravitar.Head02_DreadBuns
+        - Unlockable_Gravitar.Skin04_Tech
+        - Unlockable_Gravitar.Skin06_Amara
+        - Unlockable_Gravitar.Head03_Helmet
+        - Unlockable_Gravitar.Skin08_Corrupted
+        - Unlockable_Gravitar.Skin07_RedHanded
+        - Unlockable_Gravitar.Head12_Order
+        - Unlockable_Gravitar.Skin29_Guardian
+        - Unlockable_Gravitar.Skin03_Ghost
+        - Unlockable_Gravitar.Head05_SafetyFirst
+        - Unlockable_Gravitar.Skin30_Cute
+      unlockable_paladin: 
+        entries: 
+        - Unlockable_Paladin.Skin24_PreOrder
+        - Unlockable_Paladin.Head23_CrushTestDummy
+        - Unlockable_Paladin.Head01_Prison
+        - Unlockable_Paladin.Body01_Prison
+        - Unlockable_Paladin.Skin01_Prison
+        - Unlockable_Paladin.Skin31_Koto
+        - Unlockable_Paladin.Skin02_Order
+        - Unlockable_Paladin.Skin05_Ripper
+        - Unlockable_Paladin.Skin25_Slimed
+        - Unlockable_Paladin.Head11_Ripper
+        - Unlockable_Paladin.Skin37_Maliwan
+        - Unlockable_Paladin.Head02_PonyTail
+        - Unlockable_Paladin.Skin04_Tech
+        - Unlockable_Paladin.Skin06_Amara
+        - Unlockable_Paladin.Head04_Visor
+        - Unlockable_Paladin.Skin08_Corrupted
+        - Unlockable_Paladin.Skin07_RedHanded
+        - Unlockable_Paladin.Head12_Order
+        - Unlockable_Paladin.Skin29_Guardian
+        - Unlockable_Paladin.Skin03_Ghost
+        - Unlockable_Paladin.Head03_BaldMask
+        - Unlockable_Paladin.Skin30_Cute
+      unlockable_echo4: 
+        entries: 
+        - Unlockable_Echo4.Skin24_PreOrder
+        - Unlockable_Echo4.Skin01_Prison
+        - Unlockable_Echo4.attachment01_partyhat
+        - Unlockable_Echo4.Skin05_Ripper
+        - Unlockable_Echo4.Body03_Ripper
+        - Unlockable_Echo4.attachment04_wings
+        - Unlockable_Echo4.Skin33_Jakobs
+        - Unlockable_Echo4.Skin04_Tech
+        - Unlockable_Echo4.Skin37_Maliwan
+        - Unlockable_Echo4.Skin07_RedHanded
+        - Unlockable_Echo4.Skin03_Ghost
+        - Unlockable_Echo4.attachment09_goggles
+      unlockable_vehicles: 
+        entries: 
+        - Unlockable_Vehicles.Grazer
+        - Unlockable_Vehicles.Mat34_MoneyCamo
+        - Unlockable_Vehicles.Mat07_CuteCat
+        - Unlockable_Vehicles.Mat13_Whiteout
+        - Unlockable_Vehicles.Gravitar_Proto
+        - Unlockable_Vehicles.DarkSiren_Proto
+        - Unlockable_Vehicles.Paladin_Proto
+        - Unlockable_Vehicles.Borg
+        - Unlockable_Vehicles.ExoSoldier_Proto
+        - Unlockable_Vehicles.Mat27_GoldenPower
+        - Unlockable_Vehicles.DarkSiren
+echoprefs: 
+  path_visibility_duration: 2
+ui_screen_data: 
+  last_visited_status_menu_id: Customization
+audioprefs: 
+  volume_overall: 0.8
+  volume_sfx: 1.0
+  volume_music: 1.0
+  volume_dialog: 1.0
+  playinbackground: false
+  mutehitnotifies: false
+  claptrap_volume: 1.0
+  ui_trim: 0.0
+  player_weapons_trim: 0.0
+  explosions_trim: 0.0
+  outgoing_damage_trim: 0.0
+  incoming_damage_trim: 0.0
+  combat_voice_volume: 1.0
+  player_voice_volume: 1.0
+  player_efforts_trim: 0.0
+  player_callouts_trim: 0.0
+  player_idle_lines_trim: 0.0
+  menu_music_volume: 1.0
+  game_music_volume: 1.0
+  cinematic_music_volume: 1.0
+  boss_music_trim: 0.0
+  audio_preset: 0
+  force_mono: false
+  use_controller_speaker: false
+  eq_mode: 0
+  audio_language: 
+deep_freeze_pips: 
+  pips_list_deep_freeze: !tags
+  - profile.DLC.Headhunter
+  - profile.DLC.premium
+  - profile.DLC.preorder
+  - profile.newgame.ultimatevaulthunter
+oak.ui.news_data: 
+  news_data: 
+    latest_popup_article: '-1'
+save_game_header: 
+  guid: D11E7284422C9765F60A7E97D08B3DB2
+  timestamp: 1758653312
+pips: 
+  pips_list: !tags
+  - profile.DLC.preorder
+  - profile.weaponcustomization.Unlockable_Weapons.Mat17_DeadWood

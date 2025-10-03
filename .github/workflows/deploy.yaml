@@ -1,0 +1,39 @@
+name: "[Frontend] Build and Push Docker Image"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  IMAGE_REGISTRY: ghcr.io
+  IMAGE_NAME: aidenharwood/portfolio/bl4-save-editor:${{ github.run_id }}-${{ github.run_number }}
+
+jobs:
+  build_and_push:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aidenharwood/portfolio-action-docker-build-push@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PAT }}
+          image_name: ${{ env.IMAGE_NAME }}
+          dockerfile: Dockerfile
+          context: .
+
+  update_helm_chart:
+    name: Update Helm chart with new image reference
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - uses: aidenharwood/portfolio-action-helm-update-image@v1
+        with:
+          target_repo: aidenharwood/portfolio-helm-website
+          repo_token: ${{ secrets.GH_PAT }}
+          registry: ghcr.io
+          image_name: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          yaml_file: templates/bl4-save-editor/application.portfolio-bl4-save-editor.yaml
+          yaml_path: .spec.template.spec.containers[0].image
