@@ -32,7 +32,24 @@ export interface DecodedItem {
   markers?: Record<string, [number, string]>;
 }
 
-import { decodeBase85, encodeBase85 } from './b85-raw'
+/**
+ * BL4 Base85 implementation - Direct port from C decompiled code
+ * Unified reference implementation for all serial encoding/decoding
+ */
+
+// Base85 alphabet from C code
+const B85_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{/}~'
+const B85_BASE = 85 // 0x55 from C code
+const B85_PAD_CHAR = '~' // 0x7e from C code (last char in alphabet)
+const B85_PAD_VALUE = 126 // 0x7e
+
+// Reverse lookup table (equivalent to b85_reverse_lookup in C)
+const B85_DECODE_TABLE: number[] = new Array(256).fill(-1)
+
+// Initialize lookup table (equivalent to C initialization)
+for (let i = 0; i < B85_ALPHABET.length; i++) {
+  B85_DECODE_TABLE[B85_ALPHABET.charCodeAt(i)] = i
+}
 
 const WEAPON_NAMES: Record<string, string> = {
   'd_t@': 'Jakobs Shotgun',
@@ -67,6 +84,178 @@ function getWeaponName(serial: string): string | undefined {
   return undefined
 }
 
+/**
+ * Base85 decode using the constants and logic from b85-raw.ts
+ * This should match the working implementation
+ */
+function b85Decode(input: string): Uint8Array {
+  const digits: number[] = []
+  
+  for (const ch of input) {
+    const charCode = ch.charCodeAt(0)
+    const value = B85_DECODE_TABLE[charCode]
+    if (value !== undefined && value >= 0) {
+      digits.push(value)
+    }
+  }
+
+  // Debug: Check if we're getting all expected characters
+  if (input === 'y3L+2}Ta0Od!Hk&Y-`jLLDkno0@~lg(`;t') {
+    console.log('Decoding test payload...')
+    console.log('Input length:', input.length)
+    console.log('Valid digits found:', digits.length)
+    console.log('Expected 8 chunks (40 chars) for 32 bytes, but have', Math.floor(digits.length / 5), 'full chunks')
+  }
+
+  if (digits.length === 0) {
+    return new Uint8Array()
+  }
+
+  const output: number[] = []
+  const chunk: number[] = []
+
+  // Constants from b85-raw.ts (these match the C code constants)
+  const C4 = 0x31c84b1
+  const C3 = 0x95eed
+  const C2 = 0x1c39
+  const C1 = 0x55
+  const PAD_DIGIT = 84 // '~' in our alphabet
+
+  for (const value of digits) {
+    chunk.push(value)
+    if (chunk.length === 5) {
+      // Decode chunk using the same logic as b85-raw.ts
+      const d1 = chunk[0]
+      const d2 = chunk[1]
+      const d3 = chunk[2]
+      const d4 = chunk[3]
+      const d5 = chunk[4]
+
+      const u4 = d4 * C1 + d5
+      const u3 = d3 * C2 + u4
+      const u2 = d2 * C3 + u3
+      const value = (d1 * C4 + u2) >>> 0
+
+      output.push(
+        value & 0xff,
+        (value >>> 8) & 0xff,
+        (value >>> 16) & 0xff,
+        (value >>> 24) & 0xff
+      )
+      
+      chunk.length = 0
+    }
+  }
+
+  // Handle incomplete chunk
+  if (chunk.length > 0) {
+    const originalLength = chunk.length
+    while (chunk.length < 5) {
+      chunk.push(PAD_DIGIT)
+    }
+    
+    // Decode the padded chunk
+    const d1 = chunk[0]
+    const d2 = chunk[1]
+    const d3 = chunk[2]
+    const d4 = chunk[3]
+    const d5 = chunk[4]
+
+    const u4 = d4 * C1 + d5
+    const u3 = d3 * C2 + u4
+    const u2 = d2 * C3 + u3
+    const value = (d1 * C4 + u2) >>> 0
+
+    const decoded = [
+      value & 0xff,
+      (value >>> 8) & 0xff,
+      (value >>> 16) & 0xff,
+      (value >>> 24) & 0xff
+    ]
+    
+    // Base85 incomplete chunk rule: N input digits → (N-1) output bytes
+    // But we need to be careful not to take negative bytes
+    const bytesToTake = Math.max(originalLength - 1, 0)
+    output.push(...decoded.slice(0, bytesToTake))
+  }
+
+  return new Uint8Array(output)
+}
+
+/**
+ * Base85 encode function - Using the same logic as b85-raw.ts
+ */
+function b85Encode(bytes: Uint8Array): string {
+  const C4 = 0x31c84b1
+  const C3 = 0x95eed
+  const C2 = 0x1c39
+  const C1 = 0x55
+  
+  let result = ''
+  let index = 0
+
+  // Full 4-byte blocks
+  while (index + 4 <= bytes.length) {
+    const value =
+      bytes[index] |
+      (bytes[index + 1] << 8) |
+      (bytes[index + 2] << 16) |
+      (bytes[index + 3] << 24)
+
+    // Convert to base85 digits
+    let remainder = value >>> 0
+    const digits = new Array<number>(5)
+
+    digits[0] = Math.floor(remainder / C4)
+    remainder %= C4
+    digits[1] = Math.floor(remainder / C3)
+    remainder %= C3
+    digits[2] = Math.floor(remainder / C2)
+    remainder %= C2
+    digits[3] = Math.floor(remainder / C1)
+    digits[4] = remainder % C1
+
+    for (let i = 0; i < 5; i++) {
+      result += B85_ALPHABET[digits[i]]
+    }
+    
+    index += 4
+  }
+
+  // Trailing bytes (0 < remainder < 4)
+  const remaining = bytes.length - index
+  if (remaining > 0) {
+    // Pack bytes in little-endian order
+    let tailValue = bytes[index] ?? 0
+    if (remaining >= 2) {
+      tailValue |= (bytes[index + 1] ?? 0) << 8
+    }
+    if (remaining >= 3) {
+      tailValue |= (bytes[index + 2] ?? 0) << 16
+    }
+
+    // Convert to base85 digits (need remaining + 1 digits)
+    let remainder = tailValue >>> 0
+    const digits = new Array<number>(5)
+
+    digits[0] = Math.floor(remainder / C4)
+    remainder %= C4
+    digits[1] = Math.floor(remainder / C3)
+    remainder %= C3
+    digits[2] = Math.floor(remainder / C2)
+    remainder %= C2
+    digits[3] = Math.floor(remainder / C1)
+    digits[4] = remainder % C1
+
+    const digitCount = remaining + 1
+    for (let i = 0; i < digitCount; i++) {
+      result += B85_ALPHABET[digits[i]]
+    }
+  }
+
+  return result
+}
+
 export function bitPackDecode(serial: string): {
   data: Uint8Array
   originalPrefix: string
@@ -79,22 +268,25 @@ export function bitPackDecode(serial: string): {
   let payload = serial
 
   if (serial.startsWith('@U') && serial.length >= 3) {
-    originalPrefix = serial.slice(0, 3)
-    payload = serial.slice(3)
+    originalPrefix = serial.slice(0, 2)
+    payload = serial.slice(2)
   }
 
-  const data = decodeBase85(payload)
-  const dataPositions = Array.from({ length: payload.length }, (_, idx) => idx)
-  const charOffsets = new Array(payload.length).fill(0)
-  const markers: Record<string, [number, string]> = {}
-
   const markerList = ['Fme!K', '}TYg', '}TYs', 'RG}', 'RG/', '/A', '/B', '/C', '/D', '/F']
+  const markers: Record<string, [number, string]> = {}
   for (const marker of markerList) {
     const pos = payload.indexOf(marker)
     if (pos !== -1) {
       markers[marker] = [pos, marker]
     }
   }
+
+  // Use the unified Base85 decoder from C code
+  const data = b85Decode(payload)
+  
+  // For compatibility, create dummy arrays for data positions and offsets
+  const dataPositions = Array.from({ length: payload.length }, (_, idx) => idx)
+  const charOffsets = new Array(payload.length).fill(0)
 
   return {
     data,
@@ -113,8 +305,9 @@ export function bitPackEncode(
   _dataPositions: number[],
   _charOffsets: number[]
 ): string {
-  const encodedPayload = encodeBase85(modifiedData)
-  return `${originalPrefix}${encodedPayload}`
+  // Use the unified Base85 encoder from C code implementation
+  const encodedPayload = b85Encode(modifiedData)
+  return originalPrefix + encodedPayload
 }
 
 /**
