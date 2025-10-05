@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="w-full h-full flex flex-col bg-background border border-border/60 rounded-xl overflow-hidden">
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-border/60 bg-card/60 px-6 py-4">
@@ -216,71 +216,88 @@
                           {{ compareAnalysis.error }}
                         </p>
                         <template v-else-if="compareAnalysis.active">
-                          <div class="flex flex-wrap items-center gap-3 text-muted-foreground mb-2">
-                            <span>Base bytes: <span class="font-mono text-foreground">{{ debugAnalysis.totalBits / 8 }}</span></span>
-                            <span>Compare bytes: <span class="font-mono text-foreground">{{ compareAnalysis.compareLength / 8 }}</span></span>
-                            <span>Changed: <span class="font-mono text-foreground">{{ compareAnalysis.changedBytes }}</span></span>
-                            <span>Added: <span class="font-mono text-green-600">+{{ compareAnalysis.addedBytes }}</span></span>
-                            <span>Removed: <span class="font-mono text-red-600">-{{ compareAnalysis.removedBytes }}</span></span>
-                          </div>
                           
-                          <!-- Hex Diff View -->
+                          <!-- LCS Inline Diff -->
                           <div v-if="compareAnalysis.hasChanges" class="space-y-3">
-                            <div class="rounded-md border border-border/40 bg-background/80 overflow-auto">
-                              <div class="font-mono text-xs p-3 space-y-4">
-                                <!-- Base Serial Hex -->
+                            <!-- Serial Comparison -->
+                            <div class="rounded-lg border border-border/60 bg-card/60 p-4">
+                              <div class="text-sm font-semibold text-foreground uppercase tracking-wide mb-3">Serial Comparison</div>
+                              <!-- Base Serial -->
+                              <div class="text-xs text-muted-foreground mb-1">Base</div>
+                              <div class="font-mono text-xs bg-background rounded-md p-3 mb-3 break-all">
+                                {{ serialInput }}
+                              </div>
+                              
+                              <!-- Compare Serial -->
+                              <div class="text-xs text-muted-foreground mb-1">Compare</div>
+                              <div class="font-mono text-xs bg-background rounded-md p-3 break-all">
+                                {{ compareSerialInput }}
+                              </div>
+                            </div>
+
+                            <!-- Hex Comparison -->
+                            <div class="rounded-lg border border-border/60 bg-card/60 p-4">
+                              <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide">Hex Comparison</h3>
+                                <div class="text-xs text-muted-foreground">
+                                  Base: {{ compareAnalysis.baseBytes.length }} bytes / Compare: {{ compareAnalysis.compareBytes.length }} bytes
+                                </div>
+                              </div>
+                              
+                              <div class="space-y-3">
+                                <!-- Base Hex -->
                                 <div>
-                                  <div class="text-muted-foreground text-[10px] uppercase mb-2 font-semibold">Base Serial (Hex)</div>
-                                  <div class="flex gap-4">
-                                    <!-- Offset column -->
-                                    <div class="text-muted-foreground select-none">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed">
-                                        {{ row.offset }}
+                                  <div class="text-xs text-muted-foreground mb-1">Base</div>
+                                  <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
+                                    <div class="flex gap-4">
+                                      <!-- Offset column -->
+                                      <div class="text-muted-foreground select-none">
+                                        <div v-for="row in hexComparisonRows.base" :key="row.offset">{{ row.offset }}</div>
                                       </div>
-                                    </div>
-                                    
-                                    <!-- Hex data -->
-                                    <div class="flex-1">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed whitespace-nowrap">
-                                        <span v-for="(byte, idx) in row.baseBytes" :key="idx"
-                                          :class="[
-                                            'inline-block w-6 text-center',
-                                            byte.status === 'removed' ? 'bg-red-500/20 text-red-600 line-through' : '',
-                                            byte.status === 'changed' ? 'bg-amber-500/20 text-amber-600 font-semibold' : 'text-foreground',
-                                            byte.status === 'same' ? 'text-muted-foreground' : ''
-                                          ]"
-                                          :title="byte.status === 'removed' ? 'Byte removed in comparison' : byte.status === 'changed' ? `Changed to 0x${byte.compareByte}` : ''">
-                                          {{ byte.value }}
-                                        </span>
+                                      <!-- Hex data -->
+                                      <div class="flex-1">
+                                        <div v-for="row in hexComparisonRows.base" :key="row.offset" class="whitespace-nowrap">
+                                          <span v-for="(byte, idx) in row.bytes" :key="idx"
+                                            :class="[
+                                              'inline-block w-6 text-center',
+                                              byte.baseValue !== undefined ? (
+                                                byte.status === 'removed' ? 'bg-red-500/20 text-red-600 font-semibold' :
+                                                byte.status === 'changed' ? 'bg-red-500/20 text-red-600 font-semibold' :
+                                                'text-muted-foreground'
+                                              ) : 'text-muted-foreground/30'
+                                            ]">
+                                            {{ byte.baseValue !== undefined ? byte.baseValue.toString(16).padStart(2, '0').toUpperCase() : '--' }}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                                 
-                                <!-- Compare Serial Hex -->
+                                <!-- Compare Hex -->
                                 <div>
-                                  <div class="text-muted-foreground text-[10px] uppercase mb-2 font-semibold">Compare Serial (Hex)</div>
-                                  <div class="flex gap-4">
-                                    <!-- Offset column -->
-                                    <div class="text-muted-foreground select-none">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed">
-                                        {{ row.offset }}
+                                  <div class="text-xs text-muted-foreground mb-1">Compare</div>
+                                  <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
+                                    <div class="flex gap-4">
+                                      <!-- Offset column -->
+                                      <div class="text-muted-foreground select-none">
+                                        <div v-for="row in hexComparisonRows.compare" :key="row.offset">{{ row.offset }}</div>
                                       </div>
-                                    </div>
-                                    
-                                    <!-- Hex data -->
-                                    <div class="flex-1">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed whitespace-nowrap">
-                                        <span v-for="(byte, idx) in row.compareBytes" :key="idx"
-                                          :class="[
-                                            'inline-block w-6 text-center',
-                                            byte.status === 'added' ? 'bg-green-500/20 text-green-600 font-semibold' : '',
-                                            byte.status === 'changed' ? 'bg-amber-500/20 text-amber-600 font-semibold' : 'text-foreground',
-                                            byte.status === 'same' ? 'text-muted-foreground' : ''
-                                          ]"
-                                          :title="byte.status === 'added' ? 'Byte added in comparison' : byte.status === 'changed' ? `Changed from 0x${byte.baseByte}` : ''">
-                                          {{ byte.value }}
-                                        </span>
+                                      <!-- Hex data -->
+                                      <div class="flex-1">
+                                        <div v-for="row in hexComparisonRows.compare" :key="row.offset" class="whitespace-nowrap">
+                                          <span v-for="(byte, idx) in row.bytes" :key="idx"
+                                            :class="[
+                                              'inline-block w-6 text-center',
+                                              byte.compareValue !== undefined ? (
+                                                byte.status === 'added' ? 'bg-green-500/20 text-green-600 font-semibold' :
+                                                byte.status === 'changed' ? 'bg-green-500/20 text-green-600 font-semibold' :
+                                                'text-muted-foreground'
+                                              ) : 'text-muted-foreground/30'
+                                            ]">
+                                            {{ byte.compareValue !== undefined ? byte.compareValue.toString(16).padStart(2, '0').toUpperCase() : '--' }}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
@@ -288,86 +305,61 @@
                               </div>
                             </div>
 
-                            <!-- Binary Diff View -->
-                            <div class="rounded-md border border-border/40 bg-background/80 overflow-auto">
-                              <div class="font-mono text-[10px] p-3 space-y-4">
-                                <!-- Base Serial Binary -->
+                            <!-- Binary Comparison -->
+                            <div class="rounded-lg border border-border/60 bg-card/60 p-4">
+                              <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide">Binary Comparison</h3>
+                                <div class="text-xs text-muted-foreground">
+                                  Base: {{ compareAnalysis.baseBytes.length }} bytes / Compare: {{ compareAnalysis.compareBytes.length }} bytes
+                                </div>
+                              </div>
+                              
+                              <div class="space-y-3">
+                                <!-- Base Binary -->
                                 <div>
-                                  <div class="text-muted-foreground text-[10px] uppercase mb-2 font-semibold">Base Serial (Binary)</div>
-                                  <div class="flex gap-4">
-                                    <!-- Offset column -->
-                                    <div class="text-muted-foreground select-none">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed">
-                                        {{ row.offset }}
+                                  <div class="text-xs text-muted-foreground mb-1">Base</div>
+                                  <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
+                                    <div class="flex gap-4">
+                                      <div class="text-muted-foreground select-none">
+                                        <div v-for="row in hexComparisonRows.base" :key="row.offset">{{ row.offset }}</div>
                                       </div>
-                                    </div>
-                                    
-                                    <!-- Binary data with bit-level highlighting -->
-                                    <div class="flex-1">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed whitespace-nowrap">
-                                        <span v-for="(byte, idx) in row.baseBytes" :key="idx" class="inline-block mr-2">
-                                          <template v-if="byte.status === 'changed' && byte.valueBinary !== '--------' && byte.compareByteBinary">
-                                            <span v-for="(bit, bitIdx) in byte.valueBinary" :key="bitIdx"
-                                              :class="[
-                                                'inline-block',
-                                                bit !== byte.compareByteBinary[bitIdx] ? 'bg-amber-500/40 text-amber-700 font-bold' : 'text-foreground'
-                                              ]"
-                                              :title="bit !== byte.compareByteBinary[bitIdx] ? `Bit ${bitIdx}: ${bit} → ${byte.compareByteBinary[bitIdx]}` : ''">
-                                              {{ bit }}
-                                            </span>
-                                          </template>
-                                          <template v-else>
-                                            <span
-                                              :class="[
-                                                byte.status === 'removed' ? 'bg-red-500/20 text-red-600 line-through' : '',
-                                                byte.status === 'same' ? 'text-muted-foreground' : 'text-foreground'
-                                              ]"
-                                              :title="byte.status === 'removed' ? 'Byte removed in comparison' : ''">
-                                              {{ byte.valueBinary }}
-                                            </span>
-                                          </template>
-                                        </span>
+                                      <div class="flex-1">
+                                        <div v-for="row in hexComparisonRows.base" :key="row.offset" class="whitespace-nowrap">
+                                          <span v-for="(byte, idx) in row.bytes" :key="idx"
+                                            :class="[
+                                              idx > 0 ? 'ml-2' : '',
+                                              byte.baseValue !== undefined ? (
+                                                byte.status === 'removed' ? 'bg-red-500/20 text-red-600 font-semibold' :
+                                                byte.status === 'changed' ? 'bg-red-500/20 text-red-600 font-semibold' :
+                                                'text-muted-foreground'
+                                              ) : 'text-muted-foreground/30'
+                                            ]">{{ byte.baseValue !== undefined ? byte.baseValue.toString(2).padStart(8, '0') : '--------' }}</span>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                                 
-                                <!-- Compare Serial Binary -->
+                                <!-- Compare Binary -->
                                 <div>
-                                  <div class="text-muted-foreground text-[10px] uppercase mb-2 font-semibold">Compare Serial (Binary)</div>
-                                  <div class="flex gap-4">
-                                    <!-- Offset column -->
-                                    <div class="text-muted-foreground select-none">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed">
-                                        {{ row.offset }}
+                                  <div class="text-xs text-muted-foreground mb-1">Compare</div>
+                                  <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
+                                    <div class="flex gap-4">
+                                      <div class="text-muted-foreground select-none">
+                                        <div v-for="row in hexComparisonRows.compare" :key="row.offset">{{ row.offset }}</div>
                                       </div>
-                                    </div>
-                                    
-                                    <!-- Binary data with bit-level highlighting -->
-                                    <div class="flex-1">
-                                      <div v-for="row in compareHexRows" :key="row.offset" class="leading-relaxed whitespace-nowrap">
-                                        <span v-for="(byte, idx) in row.compareBytes" :key="idx" class="inline-block mr-2">
-                                          <template v-if="byte.status === 'changed' && byte.valueBinary !== '--------' && byte.baseByteBinary">
-                                            <span v-for="(bit, bitIdx) in byte.valueBinary" :key="bitIdx"
-                                              :class="[
-                                                'inline-block',
-                                                bit !== byte.baseByteBinary[bitIdx] ? 'bg-amber-500/40 text-amber-700 font-bold' : 'text-foreground'
-                                              ]"
-                                              :title="bit !== byte.baseByteBinary[bitIdx] ? `Bit ${bitIdx}: ${byte.baseByteBinary[bitIdx]} → ${bit}` : ''">
-                                              {{ bit }}
-                                            </span>
-                                          </template>
-                                          <template v-else>
-                                            <span
-                                              :class="[
-                                                byte.status === 'added' ? 'bg-green-500/20 text-green-600 font-semibold' : '',
-                                                byte.status === 'same' ? 'text-muted-foreground' : 'text-foreground'
-                                              ]"
-                                              :title="byte.status === 'added' ? 'Byte added in comparison' : ''">
-                                              {{ byte.valueBinary }}
-                                            </span>
-                                          </template>
-                                        </span>
+                                      <div class="flex-1">
+                                        <div v-for="row in hexComparisonRows.compare" :key="row.offset" class="whitespace-nowrap">
+                                          <span v-for="(byte, idx) in row.bytes" :key="idx"
+                                            :class="[
+                                              idx > 0 ? 'ml-2' : '',
+                                              byte.compareValue !== undefined ? (
+                                                byte.status === 'added' ? 'bg-green-500/20 text-green-600 font-semibold' :
+                                                byte.status === 'changed' ? 'bg-green-500/20 text-green-600 font-semibold' :
+                                                'text-muted-foreground'
+                                              ) : 'text-muted-foreground/30'
+                                            ]">{{ byte.compareValue !== undefined ? byte.compareValue.toString(2).padStart(8, '0') : '--------' }}</span>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
@@ -726,21 +718,22 @@ interface BitDiffSegment {
   length: number;
 }
 
-interface HexDiffByte {
-  value: string;
-  valueBinary: string;
-  status: 'same' | 'changed' | 'added' | 'removed';
-  baseByte?: string;
-  compareByte?: string;
-  baseByteBinary?: string;
-  compareByteBinary?: string;
-}
+// Kept for potential future use - hex/binary diff view interfaces
+// interface HexDiffByte {
+//   value: string;
+//   valueBinary: string;
+//   status: 'same' | 'changed' | 'added' | 'removed';
+//   baseByte?: string;
+//   compareByte?: string;
+//   baseByteBinary?: string;
+//   compareByteBinary?: string;
+// }
 
-interface CompareHexRow {
-  offset: string;
-  baseBytes: HexDiffByte[];
-  compareBytes: HexDiffByte[];
-}
+// interface CompareHexRow {
+//   offset: string;
+//   baseBytes: HexDiffByte[];
+//   compareBytes: HexDiffByte[];
+// }
 
 interface CompareAnalysis {
   active: boolean;
@@ -822,6 +815,119 @@ const hexRows = computed((): HexRow[] => {
   }
 
   return rows;
+});
+
+interface HexComparisonByte {
+  baseValue?: number;
+  compareValue?: number;
+  changed: boolean;
+  status: 'same' | 'changed' | 'added' | 'removed';
+}
+
+interface HexComparisonRow {
+  offset: string;
+  bytes: HexComparisonByte[];
+}
+
+const hexComparisonRows = computed<{ base: HexComparisonRow[], compare: HexComparisonRow[] }>(() => {
+  if (!compareAnalysis.value.active || !lcsComparison.value) {
+    return { base: [], compare: [] };
+  }
+
+  // Use LCS hex segments to build byte-aligned rows with padding
+  const baseHexSegments = lcsComparison.value.hexBaseSegments;
+  const compareHexSegments = lcsComparison.value.hexCompareSegments;
+  
+  // Convert hex segments to byte array with padding info
+  const baseBytes: HexComparisonByte[] = [];
+  const compareBytes: HexComparisonByte[] = [];
+  
+  // Process base hex segments (2 hex chars = 1 byte)
+  for (const segment of baseHexSegments) {
+    for (let i = 0; i < segment.text.length; i += 2) {
+      const hexByte = segment.text.substr(i, 2);
+      if (hexByte === '  ') {
+        // Space padding from LCS
+        baseBytes.push({
+          baseValue: undefined,
+          compareValue: undefined,
+          changed: false,
+          status: 'removed'
+        });
+      } else {
+        const value = parseInt(hexByte, 16);
+        baseBytes.push({
+          baseValue: isNaN(value) ? undefined : value,
+          compareValue: undefined,
+          changed: segment.type !== 'match',
+          status: segment.type === 'removed' ? 'removed' : segment.type === 'match' ? 'same' : 'changed'
+        });
+      }
+    }
+  }
+  
+  // Process compare hex segments
+  for (const segment of compareHexSegments) {
+    for (let i = 0; i < segment.text.length; i += 2) {
+      const hexByte = segment.text.substr(i, 2);
+      if (hexByte === '  ') {
+        // Space padding from LCS
+        compareBytes.push({
+          baseValue: undefined,
+          compareValue: undefined,
+          changed: false,
+          status: 'added'
+        });
+      } else {
+        const value = parseInt(hexByte, 16);
+        compareBytes.push({
+          baseValue: undefined,
+          compareValue: isNaN(value) ? undefined : value,
+          changed: segment.type !== 'match',
+          status: segment.type === 'added' ? 'added' : segment.type === 'match' ? 'same' : 'changed'
+        });
+      }
+    }
+  }
+
+  const maxLength = Math.max(baseBytes.length, compareBytes.length);
+  const bytesPerRow = 16;
+
+  const baseRows: HexComparisonRow[] = [];
+  const compareRows: HexComparisonRow[] = [];
+
+  for (let i = 0; i < maxLength; i += bytesPerRow) {
+    const baseRowBytes: HexComparisonByte[] = [];
+    const compareRowBytes: HexComparisonByte[] = [];
+
+    for (let j = 0; j < bytesPerRow && (i + j) < maxLength; j++) {
+      const byteIndex = i + j;
+      baseRowBytes.push(baseBytes[byteIndex] || {
+        baseValue: undefined,
+        compareValue: undefined,
+        changed: false,
+        status: 'same'
+      });
+      compareRowBytes.push(compareBytes[byteIndex] || {
+        baseValue: undefined,
+        compareValue: undefined,
+        changed: false,
+        status: 'same'
+      });
+    }
+
+    baseRows.push({
+      offset: i.toString(16).padStart(4, '0').toUpperCase(),
+      bytes: baseRowBytes
+    });
+
+    compareRows.push({
+      offset: i.toString(16).padStart(4, '0').toUpperCase(),
+      bytes: compareRowBytes
+    });
+  }
+
+  return { base: baseRows, compare: compareRows };
 });
 
 function bytesToBitString(bytes: Uint8Array): string {
@@ -1003,92 +1109,337 @@ const compareAnalysis = computed<CompareAnalysis>(() => {
   }
 });
 
-const compareHexRows = computed((): CompareHexRow[] => {
-  if (!compareAnalysis.value.active || !compareAnalysis.value.hasChanges) {
-    return [];
-  }
-
-  const baseBytes = compareAnalysis.value.baseBytes;
-  const compareBytes = compareAnalysis.value.compareBytes;
-  const maxLength = Math.max(baseBytes.length, compareBytes.length);
-  const rows: CompareHexRow[] = [];
-  const bytesPerRow = 16;
-
-  for (let i = 0; i < maxLength; i += bytesPerRow) {
-    const baseRowBytes: HexDiffByte[] = [];
-    const compareRowBytes: HexDiffByte[] = [];
-    
-    for (let j = 0; j < bytesPerRow && (i + j) < maxLength; j++) {
-      const byteIndex = i + j;
-      const hasByte = byteIndex < baseBytes.length;
-      const hasCompareByte = byteIndex < compareBytes.length;
-      
-      if (!hasByte && hasCompareByte) {
-        // Byte added in comparison
-        const compareByte = compareBytes[byteIndex];
-        const compareBinary = compareByte.toString(2).padStart(8, '0');
-        baseRowBytes.push({
-          value: '--',
-          valueBinary: '--------',
-          status: 'removed',
-          compareByte: compareByte.toString(16).padStart(2, '0').toUpperCase(),
-          compareByteBinary: compareBinary
-        });
-        compareRowBytes.push({
-          value: compareByte.toString(16).padStart(2, '0').toUpperCase(),
-          valueBinary: compareBinary,
-          status: 'added'
-        });
-      } else if (hasByte && !hasCompareByte) {
-        // Byte removed in comparison
-        const baseByte = baseBytes[byteIndex];
-        const baseBinary = baseByte.toString(2).padStart(8, '0');
-        baseRowBytes.push({
-          value: baseByte.toString(16).padStart(2, '0').toUpperCase(),
-          valueBinary: baseBinary,
-          status: 'removed'
-        });
-        compareRowBytes.push({
-          value: '--',
-          valueBinary: '--------',
-          status: 'added',
-          baseByte: baseByte.toString(16).padStart(2, '0').toUpperCase(),
-          baseByteBinary: baseBinary
-        });
-      } else if (hasByte && hasCompareByte) {
-        // Both have byte - check if changed
-        const baseByte = baseBytes[byteIndex];
-        const compareByte = compareBytes[byteIndex];
-        const changed = baseByte !== compareByte;
-        const baseBinary = baseByte.toString(2).padStart(8, '0');
-        const compareBinary = compareByte.toString(2).padStart(8, '0');
-        
-        baseRowBytes.push({
-          value: baseByte.toString(16).padStart(2, '0').toUpperCase(),
-          valueBinary: baseBinary,
-          status: changed ? 'changed' : 'same',
-          compareByte: changed ? compareByte.toString(16).padStart(2, '0').toUpperCase() : undefined,
-          compareByteBinary: changed ? compareBinary : undefined
-        });
-        compareRowBytes.push({
-          value: compareByte.toString(16).padStart(2, '0').toUpperCase(),
-          valueBinary: compareBinary,
-          status: changed ? 'changed' : 'same',
-          baseByte: changed ? baseByte.toString(16).padStart(2, '0').toUpperCase() : undefined,
-          baseByteBinary: changed ? baseBinary : undefined
-        });
+// LCS (Longest Common Subsequence) algorithm
+function computeLCS(str1: string, str2: string): number[][] {
+  const m = str1.length;
+  const n = str2.length;
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+  
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
       }
     }
-
-    rows.push({
-      offset: i.toString(16).padStart(4, '0').toUpperCase(),
-      baseBytes: baseRowBytes,
-      compareBytes: compareRowBytes
-    });
   }
+  
+  return dp;
+}
 
-  return rows;
+interface LCSSegment {
+  text: string;
+  type: 'match' | 'diff' | 'added' | 'removed';
+}
+
+interface LCSComparison {
+  baseSegments: LCSSegment[];
+  compareSegments: LCSSegment[];
+  matchPercent: number;
+  diffPercent: number;
+  addedPercent: number;
+  hexBaseSegments: LCSSegment[];
+  hexCompareSegments: LCSSegment[];
+  binaryBaseSegments: LCSSegment[];
+  binaryCompareSegments: LCSSegment[];
+}
+
+const lcsComparison = computed<LCSComparison>(() => {
+  if (!compareAnalysis.value.active || !compareSerialInput.value) {
+    return {
+      baseSegments: [],
+      compareSegments: [],
+      matchPercent: 0,
+      diffPercent: 0,
+      addedPercent: 0,
+      hexBaseSegments: [],
+      hexCompareSegments: [],
+      binaryBaseSegments: [],
+      binaryCompareSegments: []
+    };
+  }
+  
+  const base = serialInput.value;
+  const compare = compareSerialInput.value;
+  const dp = computeLCS(base, compare);
+  
+  // Backtrack to find the diff
+  const baseSegments: LCSSegment[] = [];
+  const compareSegments: LCSSegment[] = [];
+  const diffBar: string[] = [];
+  
+  let i = base.length;
+  let j = compare.length;
+  let baseTemp = '';
+  let compareTemp = '';
+  let baseType: 'match' | 'diff' | 'removed' = 'match';
+  let compareType: 'match' | 'diff' | 'added' = 'match';
+  
+  const flushBase = () => {
+    if (baseTemp) {
+      baseSegments.unshift({ text: baseTemp, type: baseType });
+      baseTemp = '';
+    }
+  };
+  
+  const flushCompare = () => {
+    if (compareTemp) {
+      compareSegments.unshift({ text: compareTemp, type: compareType });
+      compareTemp = '';
+    }
+  };
+  
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && base[i - 1] === compare[j - 1]) {
+      // Match
+      if (baseType !== 'match') {
+        flushBase();
+        baseType = 'match';
+      }
+      if (compareType !== 'match') {
+        flushCompare();
+        compareType = 'match';
+      }
+      baseTemp = base[i - 1] + baseTemp;
+      compareTemp = compare[j - 1] + compareTemp;
+      diffBar.unshift('=');
+      i--;
+      j--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      // Added in compare
+      if (compareType !== 'added') {
+        flushCompare();
+        compareType = 'added';
+      }
+      if (baseType !== 'diff') {
+        flushBase();
+        baseType = 'diff';
+      }
+      baseTemp = ' ' + baseTemp;
+      compareTemp = compare[j - 1] + compareTemp;
+      diffBar.unshift('+');
+      j--;
+    } else {
+      // Removed from base (or different)
+      if (baseType !== 'removed') {
+        flushBase();
+        baseType = 'removed';
+      }
+      if (compareType !== 'diff') {
+        flushCompare();
+        compareType = 'diff';
+      }
+      baseTemp = base[i - 1] + baseTemp;
+      compareTemp = ' ' + compareTemp;
+      diffBar.unshift('-');
+      i--;
+    }
+  }
+  
+  flushBase();
+  flushCompare();
+  
+  // Ensure both sequences are padded to the same length
+  let baseLength = baseSegments.reduce((sum, seg) => sum + seg.text.length, 0);
+  let compareLength = compareSegments.reduce((sum, seg) => sum + seg.text.length, 0);
+  
+  if (baseLength < compareLength) {
+    // Pad base with spaces
+    const lastSeg = baseSegments[baseSegments.length - 1];
+    if (lastSeg && lastSeg.type === 'diff') {
+      lastSeg.text += ' '.repeat(compareLength - baseLength);
+    } else {
+      baseSegments.push({ text: ' '.repeat(compareLength - baseLength), type: 'diff' });
+    }
+  } else if (compareLength < baseLength) {
+    // Pad compare with spaces
+    const lastSeg = compareSegments[compareSegments.length - 1];
+    if (lastSeg && lastSeg.type === 'diff') {
+      lastSeg.text += ' '.repeat(baseLength - compareLength);
+    } else {
+      compareSegments.push({ text: ' '.repeat(baseLength - compareLength), type: 'diff' });
+    }
+  }
+  
+  // Calculate percentages
+  const totalChars = Math.max(base.length, compare.length);
+  const matchCount = diffBar.filter(c => c === '=').length;
+  const diffCount = diffBar.filter(c => c === '-').length;
+  const addedCount = diffBar.filter(c => c === '+').length;
+  
+  // Now do the same for hex representation
+  const baseHex = Array.from(compareAnalysis.value.baseBytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  const compareHex = Array.from(compareAnalysis.value.compareBytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  const hexDp = computeLCS(baseHex, compareHex);
+  
+  // Backtrack for hex diff
+  const hexBaseSegments: LCSSegment[] = [];
+  const hexCompareSegments: LCSSegment[] = [];
+  const hexDiffBar: string[] = [];
+  
+  let hi = baseHex.length;
+  let hj = compareHex.length;
+  let hexBaseTemp = '';
+  let hexCompareTemp = '';
+  let hexBaseType: 'match' | 'diff' | 'removed' = 'match';
+  let hexCompareType: 'match' | 'diff' | 'added' = 'match';
+  
+  const flushHexBase = () => {
+    if (hexBaseTemp) {
+      hexBaseSegments.unshift({ text: hexBaseTemp, type: hexBaseType });
+      hexBaseTemp = '';
+    }
+  };
+  
+  const flushHexCompare = () => {
+    if (hexCompareTemp) {
+      hexCompareSegments.unshift({ text: hexCompareTemp, type: hexCompareType });
+      hexCompareTemp = '';
+    }
+  };
+  
+  while (hi > 0 || hj > 0) {
+    if (hi > 0 && hj > 0 && baseHex[hi - 1] === compareHex[hj - 1]) {
+      // Match
+      if (hexBaseType !== 'match') {
+        flushHexBase();
+        hexBaseType = 'match';
+      }
+      if (hexCompareType !== 'match') {
+        flushHexCompare();
+        hexCompareType = 'match';
+      }
+      hexBaseTemp = baseHex[hi - 1] + hexBaseTemp;
+      hexCompareTemp = compareHex[hj - 1] + hexCompareTemp;
+      hexDiffBar.unshift('=');
+      hi--;
+      hj--;
+    } else if (hj > 0 && (hi === 0 || hexDp[hi][hj - 1] >= hexDp[hi - 1][hj])) {
+      // Added in compare
+      if (hexCompareType !== 'added') {
+        flushHexCompare();
+        hexCompareType = 'added';
+      }
+      if (hexBaseType !== 'diff') {
+        flushHexBase();
+        hexBaseType = 'diff';
+      }
+      hexBaseTemp = ' ' + hexBaseTemp;
+      hexCompareTemp = compareHex[hj - 1] + hexCompareTemp;
+      hexDiffBar.unshift('+');
+      hj--;
+    } else {
+      // Removed from base
+      if (hexBaseType !== 'removed') {
+        flushHexBase();
+        hexBaseType = 'removed';
+      }
+      if (hexCompareType !== 'diff') {
+        flushHexCompare();
+        hexCompareType = 'diff';
+      }
+      hexBaseTemp = baseHex[hi - 1] + hexBaseTemp;
+      hexCompareTemp = ' ' + hexCompareTemp;
+      hexDiffBar.unshift('-');
+      hi--;
+    }
+  }
+  
+  flushHexBase();
+  flushHexCompare();
+  
+  // Ensure both hex sequences are padded to the same length
+  let hexBaseLength = hexBaseSegments.reduce((sum, seg) => sum + seg.text.length, 0);
+  let hexCompareLength = hexCompareSegments.reduce((sum, seg) => sum + seg.text.length, 0);
+  
+  if (hexBaseLength < hexCompareLength) {
+    // Pad hex base with spaces
+    const lastSeg = hexBaseSegments[hexBaseSegments.length - 1];
+    if (lastSeg && lastSeg.type === 'diff') {
+      lastSeg.text += ' '.repeat(hexCompareLength - hexBaseLength);
+    } else {
+      hexBaseSegments.push({ text: ' '.repeat(hexCompareLength - hexBaseLength), type: 'diff' });
+    }
+  } else if (hexCompareLength < hexBaseLength) {
+    // Pad hex compare with spaces
+    const lastSeg = hexCompareSegments[hexCompareSegments.length - 1];
+    if (lastSeg && lastSeg.type === 'diff') {
+      lastSeg.text += ' '.repeat(hexBaseLength - hexCompareLength);
+    } else {
+      hexCompareSegments.push({ text: ' '.repeat(hexBaseLength - hexCompareLength), type: 'diff' });
+    }
+  }
+  
+  // Convert hex segments to binary representation (based on hex diff, not separate LCS)
+  const binaryBaseSegments: LCSSegment[] = [];
+  const binaryCompareSegments: LCSSegment[] = [];
+  
+  // Convert each hex segment to binary
+  for (const hexSeg of hexBaseSegments) {
+    let binaryText = '';
+    for (let i = 0; i < hexSeg.text.length; i++) {
+      const char = hexSeg.text[i];
+      if (char === ' ') {
+        // Space padding - convert to 4 space characters (one hex char = 4 bits)
+        binaryText += '    ';
+      } else {
+        // Convert hex char to 4-bit binary
+        const nibble = parseInt(char, 16);
+        if (!isNaN(nibble)) {
+          binaryText += nibble.toString(2).padStart(4, '0');
+        } else {
+          binaryText += '    '; // Invalid hex char, treat as space
+        }
+      }
+    }
+    binaryBaseSegments.push({ text: binaryText, type: hexSeg.type });
+  }
+  
+  for (const hexSeg of hexCompareSegments) {
+    let binaryText = '';
+    for (let i = 0; i < hexSeg.text.length; i++) {
+      const char = hexSeg.text[i];
+      if (char === ' ') {
+        // Space padding - convert to 4 space characters (one hex char = 4 bits)
+        binaryText += '    ';
+      } else {
+        // Convert hex char to 4-bit binary
+        const nibble = parseInt(char, 16);
+        if (!isNaN(nibble)) {
+          binaryText += nibble.toString(2).padStart(4, '0');
+        } else {
+          binaryText += '    '; // Invalid hex char, treat as space
+        }
+      }
+    }
+    binaryCompareSegments.push({ text: binaryText, type: hexSeg.type });
+  }
+  
+  return {
+    baseSegments,
+    compareSegments,
+    matchPercent: Math.round((matchCount / totalChars) * 100),
+    diffPercent: Math.round((diffCount / totalChars) * 100),
+    addedPercent: Math.round((addedCount / totalChars) * 100),
+    hexBaseSegments,
+    hexCompareSegments,
+    binaryBaseSegments,
+    binaryCompareSegments
+  };
 });
+
+// Kept for potential future use - hex/binary diff view
+// const compareHexRows = computed((): CompareHexRow[] => {
+//   if (!compareAnalysis.value.active || !compareAnalysis.value.hasChanges) {
+//     return [];
+//   }
+//   ... (implementation commented out)
+// });
 
 const debugAnalysis = computed<DebugAnalysisResult>(() => {
   const empty: DebugAnalysisResult = {
@@ -1522,7 +1873,7 @@ function getHexCellHighlight(byteIndex: number, changed: boolean): string {
     return 'bg-accent/30 text-primary-foreground font-semibold rounded';
   }
   if (changed) {
-    return 'font-semibold rounded border-1 border-accent/30';
+    return 'bg-red-500/20 text-red-600 font-semibold rounded';
   }
   return 'text-foreground';
 }
@@ -1532,7 +1883,7 @@ function getAsciiHighlight(byteIndex: number, changed: boolean): string {
     return 'bg-accent/30 text-accent-foreground font-semibold rounded';
   }
   if (changed) {
-    return 'text-accent-foreground font-semibold rounded';
+    return 'bg-red-500/20 text-red-600 font-semibold rounded';
   }
   return '';
 }
