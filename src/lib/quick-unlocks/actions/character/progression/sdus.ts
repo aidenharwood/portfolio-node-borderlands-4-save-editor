@@ -9,6 +9,14 @@ export const unlockAllSdusAction: QuickUnlockAction = {
   run(data: any) {
     const updatedData = deepClone(data ?? {})
 
+    const totalSduPointsNeeded = ALL_SDU_NODES.reduce((sum, node) => sum + (node.points_spent || 0), 0)
+
+    updatedData.progression = updatedData.progression || {}
+    updatedData.progression.point_pools = updatedData.progression.point_pools || {}
+    if (Number.parseInt(updatedData.progression?.point_pools?.echotokenprogresspoints ?? '0') < totalSduPointsNeeded) {
+      updatedData.progression.point_pools.echotokenprogresspoints = totalSduPointsNeeded
+    }
+
     if (!updatedData.progression) {
       updatedData.progression = {}
     }
@@ -26,6 +34,7 @@ export const unlockAllSdusAction: QuickUnlockAction = {
     } else {
       graphs.push({ name: 'sdu_upgrades', nodes: ALL_SDU_NODES })
     }
+
 
     return { data: updatedData }
   }

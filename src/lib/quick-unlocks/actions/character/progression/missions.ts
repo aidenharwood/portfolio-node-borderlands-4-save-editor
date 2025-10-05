@@ -2,41 +2,46 @@ import { deepClone } from '../../../../utils'
 import type { QuickUnlockAction } from '../../../types'
 
 export const completeAllMissionsAction: QuickUnlockAction = {
-  id: 'complete-all-missions',
-  label: 'Complete All Missions',
-  icon: 'pi pi-lock',
-  run(data: any) {
-    const updatedData = deepClone(data ?? {})
-    const warnings: string[] = []
-    
-    updatedData.missions.local_sets = updatedData.missions.local_sets || {}
+    id: 'complete-all-missions',
+    label: 'Complete All Missions',
+    icon: 'pi pi-lock',
+    run(data: any) {
+        const updatedData = deepClone(data ?? {})
+        const warnings: string[] = []
 
-    function isPlainObject(value: any): value is Record<string, any> {
-      return value !== null && typeof value === 'object' && !Array.isArray(value)
-    }
+        const GLOBALS = {
+            movegrant_grapplegrabber: true,
+            movegrant_grapplegrabber_presentation: true,
+            repkit_unlocked: true,
+            lockdownlifted: true,
+            movegrant_echolocation: true,
+            prologue_completed: true,
+            movegrant_glide: true,
+            highest_unlocked_vault_hunter_level: 1,
+            vault_hunter_level: 1,
+            mainmissioncomplete: true,
+        };
 
-    function mergeDeep(target: Record<string, any> = {}, source: Record<string, any> = {}) {
-      const out = deepClone(target)
-      for (const key of Object.keys(source)) {
-        const srcVal = source[key]
-        const tgtVal = out[key]
+        updatedData.state.equip_slots_unlocked = [2, 3, 6, 7, 8];
 
-        if (isPlainObject(tgtVal) && isPlainObject(srcVal)) {
-          out[key] = mergeDeep(tgtVal, srcVal)
-        } else {
-          out[key] = deepClone(srcVal)
+        updatedData.globals = {
+            ...(updatedData.globals || {}),
+            ...GLOBALS,
+        };
+
+        updatedData.missions.local_sets = updatedData.missions.local_sets || {}
+
+
+        updatedData.missions.local_sets = {
+            ...(updatedData.missions.local_sets || {}),
+            ...MISSIONS
         }
-      }
-      return out
-    }
 
-    updatedData.missions.local_sets = mergeDeep(updatedData.missions.local_sets, MISSIONS)
-    
-    return {
-      data: updatedData,
-      warnings: warnings
+        return {
+            data: updatedData,
+            warnings: warnings
+        }
     }
-  }
 }
 
 const MISSIONS = {

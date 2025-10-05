@@ -17,6 +17,8 @@ export const CHARACTER_QUICK_UNLOCK_GROUPS: QuickUnlockGroup[] = [
             'unlock-all-sdus',
             'unlock-all-hoverdrives',
             'complete-all-missions',
+            'unlock-uvh-5',
+            'complete-all-challenges',
         ]
     },
     {

@@ -74,17 +74,57 @@ export class CharacterInfoSection implements SerializableSection {
             validation: (value) => Number.isInteger(value) && value >= 0
         },
         {
+            path: 'progression.point_pools.characterprogresspoints',
+            name: 'Character Skill Points',
+            type: 'number',
+            min: 0,
+            step: 1,
+            validation: (value) => Number.isInteger(value) && value >= 0
+        },
+        {
             path: 'state.experience.1.level',
             name: 'Specialization Level',
             type: 'number',
             min: 1,
             max: 200,
             step: 1,
-            validation: (value) => Number.isInteger(value) && value >= 1 && value <= 200
+            validation: (value) => Number.isInteger(value) && value >= 1
         },
         {
             path: 'state.experience.1.points',
             name: 'Specialization EXP',
+            type: 'number',
+            min: 0,
+            step: 1,
+            validation: (value) => Number.isInteger(value) && value >= 0
+        },
+        {
+            path: 'progression.point_pools.specializationtokenpool',
+            name: 'Specialization Skill Points',
+            type: 'number',
+            min: 0,
+            step: 1,
+            validation: (value) => Number.isInteger(value) && value >= 0
+        },
+        {
+            path: 'progression.point_pools.echotokenprogresspoints',
+            name: 'SDU Tokens',
+            type: 'number',
+            min: 0,
+            step: 1,
+            validation: (value) => Number.isInteger(value) && value >= 0
+        },
+        {
+            path: 'state.currencies.cash',
+            name: 'Cash',
+            type: 'number',
+            min: 0,
+            step: 1,
+            validation: (value) => Number.isInteger(value) && value >= 0
+        },
+        {
+            path: 'state.currencies.eridium',
+            name: 'Eridium',
             type: 'number',
             min: 0,
             step: 1,

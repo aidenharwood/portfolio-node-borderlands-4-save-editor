@@ -32,6 +32,8 @@ export const completeAllVaultsAction: QuickUnlockAction = {
           updatedData.stats.openworld.collectibles[`vaultkey_${region.name}`] = updatedData.stats.openworld.collectibles[`vaultkey_${region.name}`] || {}
           updatedData.stats.openworld.collectibles[`vaultkey_${region.name}`][`vaultkey_${indexToLetter(i)}_${region.name}`] = 1
         }
+        updatedData.missions = updatedData.missions || {}
+        updatedData.missions.local_sets = updatedData.missions.local_sets || {}
         updatedData.missions.local_sets[`missionset_vault_${region.name}`] = {
           status: 'completed',
           missions: {
@@ -54,14 +56,24 @@ export const completeAllVaultsAction: QuickUnlockAction = {
       { name: 'Vault Power Upgrade 3 - 50% Cost Reduction per Move', is_activated: true },
     ]
 
+    updatedData.progression = updatedData.progression || {}
+    updatedData.progression.graphs = updatedData.progression.graphs || []
     const graphs: any[] = updatedData.progression.graphs
-    const targetIndex = graphs.findIndex((graph) => graph?.name === 'vaultpower_vaultreward_upgrades')
-
-    if (targetIndex >= 0) {
-      const existing = graphs[targetIndex] ?? {}
-      graphs[targetIndex] = { ...existing, name: 'vaultpower_vaultreward_upgrades', nodes: vaultNodes }
+    
+    // Ensure graphs is actually an array
+    if (!Array.isArray(graphs)) {
+      updatedData.progression.graphs = []
+      const fixedGraphs: any[] = updatedData.progression.graphs
+      fixedGraphs.push({ name: 'vaultpower_vaultreward_upgrades', nodes: vaultNodes })
     } else {
-      graphs.push({ name: 'vaultpower_vaultreward_upgrades', nodes: vaultNodes })
+      const targetIndex = graphs.findIndex((graph) => graph?.name === 'vaultpower_vaultreward_upgrades')
+
+      if (targetIndex >= 0) {
+        const existing = graphs[targetIndex] ?? {}
+        graphs[targetIndex] = { ...existing, name: 'vaultpower_vaultreward_upgrades', nodes: vaultNodes }
+      } else {
+        graphs.push({ name: 'vaultpower_vaultreward_upgrades', nodes: vaultNodes })
+      }
     }
 
     return {

@@ -29,12 +29,16 @@ import { completeOrderSilosAction } from './actions/character/activities/order-s
 import { unlockAllCosmeticsAction } from './actions/profile/cosmetics/cosmetics'
 import { unlockAllShiniesAction } from './actions/profile/cosmetics/shinies'
 import { unlockAllRewardPacksAction } from './actions/character/cosmetics/rewards'
+import { unlockUvh5Action } from './actions/character/progression/uvh'
+import { completeAllChallenges } from './actions/character/progression/challenges'
 
 const QUICK_UNLOCK_ACTIONS: ReadonlyArray<QuickUnlockAction> = Object.freeze([
   // Character progression
   unlockAllSdusAction,
   unlockAllHoverdrivesAction,
   completeAllMissionsAction,
+  unlockUvh5Action,
+  completeAllChallenges,
   // Character exploration
   revealMapAction,
   unlockAllSafehousesAction,

@@ -20,6 +20,9 @@ export const unlockAllSafehousesAction: QuickUnlockAction = {
         updatedData.stats.openworld.activities.safehouses = updatedData.stats.openworld.activities.safehouses || {}
         updatedData.stats.openworld.activities.safehouses[`safehouse_${region.name}_${i + 1}`] = 1
 
+        updatedData.missions = updatedData.missions || {}
+        updatedData.missions.local_sets = updatedData.missions.local_sets || {}
+        updatedData.missions.local_sets.missionset_zoneactivity_safehouse = updatedData.missions.local_sets.missionset_zoneactivity_safehouse || {missions:{}}
         updatedData.missions.local_sets.missionset_zoneactivity_safehouse.missions[`zoneactivity_${region.name}_safehouse${i + 1}`] = {
           status: "completed",
           final: {

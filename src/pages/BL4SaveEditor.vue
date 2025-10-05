@@ -43,17 +43,6 @@
         <SaveFolderUpload :uploading="uploading" @upload="handleFolderUpload" />
       </section>
 
-      <!-- Success Message -->
-      <div v-if="hasLoadedFiles" class="bg-accent/10 border border-accent/20 rounded-lg p-6">
-        <div class="flex items-center gap-3">
-          <i class="pi pi-check-circle text-accent text-xl"></i>
-          <div>
-            <h3 class="font-semibold text-accent">Save Folder Loaded!</h3>
-            <p class="text-muted-foreground">Successfully loaded {{ saveFiles.length }} save files</p>
-          </div>
-        </div>
-      </div>
-
       <!-- File Editor Section -->
       <section v-if="hasLoadedFiles" class="bg-card rounded-lg border" @drop.prevent="handleEditorDrop"
         @dragover.prevent="handleEditorDragOver" @dragleave="handleEditorDragLeave"

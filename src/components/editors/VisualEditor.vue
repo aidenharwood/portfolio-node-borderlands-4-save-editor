@@ -476,25 +476,20 @@ const handleUnlockEverything = async () => {
   // also animate the big button
   triggerQuickActionAnimation('unlock-everything')
 
-  // Run all actions in parallel (they run synchronously so this wraps them into promises)
-  const promises = actions.map((action) => {
-    return Promise.resolve().then(() => {
-      try {
-        return runQuickUnlock(action.id, baseData)
-      } catch (err) {
-        console.warn(`Quick unlock '${action.id}' failed during parallel apply:`, err)
-        return null
+  // Run all actions sequentially to properly accumulate changes
+  let mergedData = deepClone(baseData)
+  
+  for (const action of actions) {
+    try {
+      const result = runQuickUnlock(action.id, mergedData)
+      if (result && result.data) {
+        mergedData = result.data
+        if (result.warnings && result.warnings.length) {
+          console.warn(`Quick unlock action "${action.id}" reported warnings:`, result.warnings)
+        }
       }
-    })
-  })
-
-  const results = await Promise.all(promises)
-
-  // Merge results: start from base and apply each result's data in order (deterministic merge)
-  let mergedData = baseData
-  for (const res of results) {
-    if (res && res.data) {
-      mergedData = res.data
+    } catch (err) {
+      console.warn(`Quick unlock '${action.id}' failed:`, err)
     }
   }
 
