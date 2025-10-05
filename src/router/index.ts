@@ -7,7 +7,7 @@ import SerialDebug from "@/pages/SerialDebug.vue";
 
 const routes = [
   { path: "/", component: PageComponent({ component: BL4SaveEditor, renderLayout: false }) },
-  { path: "/debug", component: PageComponent({ component: SerialDebug, renderLayout: false }) },
+  { path: "/serialeditor", component: PageComponent({ component: SerialDebug, renderLayout: false }) },
 ];
 
 const router = createRouter({

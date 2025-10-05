@@ -39,9 +39,6 @@ export interface DecodedItem {
 
 // Base85 alphabet from C code
 const B85_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{/}~'
-const B85_BASE = 85 // 0x55 from C code
-const B85_PAD_CHAR = '~' // 0x7e from C code (last char in alphabet)
-const B85_PAD_VALUE = 126 // 0x7e
 
 // Reverse lookup table (equivalent to b85_reverse_lookup in C)
 const B85_DECODE_TABLE: number[] = new Array(256).fill(-1)
@@ -85,10 +82,33 @@ function getWeaponName(serial: string): string | undefined {
 }
 
 /**
- * Base85 decode using the constants and logic from b85-raw.ts
- * This should match the working implementation
+ * Reverse the bits in a byte: 76543210 => 01234567
+ * JavaScript << 1 operation handles the 9th bit correctly
+ * @param byte - The byte value to reverse
+ * @param shouldReverse - Whether to actually reverse the bits (default: true)
  */
-function b85Decode(input: string): Uint8Array {
+function reverseBits(byte: number, shouldReverse: boolean = true): number {
+  if (!shouldReverse) {
+    return byte & 0xFF
+  }
+  let result = 0
+  for (let i = 0; i < 8; i++) {
+    result = (result << 1) | (byte & 1)
+    byte >>>= 1
+  }
+  return result & 0xFF
+}
+
+/**
+ * Base85 decode using big-endian byte order, then apply bit reversal
+ * Algorithm:
+ * 1. Discard @U prefix
+ * 2. Decode base85 in big endian (0123)
+ * 3. For each byte, reverse bits from right to left 76543210 => 01234567
+ * @param input - The base85 string to decode
+ * @param flipBits - Whether to reverse bits (default: true for BL4 compatibility)
+ */
+function b85Decode(input: string, flipBits: boolean = true): Uint8Array {
   const digits: number[] = []
   
   for (const ch of input) {
@@ -99,13 +119,7 @@ function b85Decode(input: string): Uint8Array {
     }
   }
 
-  // Debug: Check if we're getting all expected characters
-  if (input === 'y3L+2}Ta0Od!Hk&Y-`jLLDkno0@~lg(`;t') {
-    console.log('Decoding test payload...')
-    console.log('Input length:', input.length)
-    console.log('Valid digits found:', digits.length)
-    console.log('Expected 8 chunks (40 chars) for 32 bytes, but have', Math.floor(digits.length / 5), 'full chunks')
-  }
+
 
   if (digits.length === 0) {
     return new Uint8Array()
@@ -136,11 +150,12 @@ function b85Decode(input: string): Uint8Array {
       const u2 = d2 * C3 + u3
       const value = (d1 * C4 + u2) >>> 0
 
+      // Big-endian byte order (0123), then reverse bits for each byte
       output.push(
-        value & 0xff,
-        (value >>> 8) & 0xff,
-        (value >>> 16) & 0xff,
-        (value >>> 24) & 0xff
+        reverseBits((value >>> 24) & 0xff, flipBits),
+        reverseBits((value >>> 16) & 0xff, flipBits),
+        reverseBits((value >>> 8) & 0xff, flipBits),
+        reverseBits(value & 0xff, flipBits)
       )
       
       chunk.length = 0
@@ -166,11 +181,12 @@ function b85Decode(input: string): Uint8Array {
     const u2 = d2 * C3 + u3
     const value = (d1 * C4 + u2) >>> 0
 
+    // Big-endian byte order (0123), then reverse bits for each byte
     const decoded = [
-      value & 0xff,
-      (value >>> 8) & 0xff,
-      (value >>> 16) & 0xff,
-      (value >>> 24) & 0xff
+      reverseBits((value >>> 24) & 0xff, flipBits),
+      reverseBits((value >>> 16) & 0xff, flipBits),
+      reverseBits((value >>> 8) & 0xff, flipBits),
+      reverseBits(value & 0xff, flipBits)
     ]
     
     // Base85 incomplete chunk rule: N input digits → (N-1) output bytes
@@ -184,8 +200,10 @@ function b85Decode(input: string): Uint8Array {
 
 /**
  * Base85 encode function - Using the same logic as b85-raw.ts
+ * @param bytes - The byte array to encode
+ * @param flipBits - Whether to reverse bits (default: true for BL4 compatibility)
  */
-function b85Encode(bytes: Uint8Array): string {
+function b85Encode(bytes: Uint8Array, flipBits: boolean = true): string {
   const C4 = 0x31c84b1
   const C3 = 0x95eed
   const C2 = 0x1c39
@@ -196,11 +214,12 @@ function b85Encode(bytes: Uint8Array): string {
 
   // Full 4-byte blocks
   while (index + 4 <= bytes.length) {
+    // Reverse bits first (inverse of decode), then pack in big-endian order
     const value =
-      bytes[index] |
-      (bytes[index + 1] << 8) |
-      (bytes[index + 2] << 16) |
-      (bytes[index + 3] << 24)
+      (reverseBits(bytes[index], flipBits) << 24) |
+      (reverseBits(bytes[index + 1], flipBits) << 16) |
+      (reverseBits(bytes[index + 2], flipBits) << 8) |
+      reverseBits(bytes[index + 3], flipBits)
 
     // Convert to base85 digits
     let remainder = value >>> 0
@@ -225,13 +244,16 @@ function b85Encode(bytes: Uint8Array): string {
   // Trailing bytes (0 < remainder < 4)
   const remaining = bytes.length - index
   if (remaining > 0) {
-    // Pack bytes in little-endian order
-    let tailValue = bytes[index] ?? 0
+    // Reverse bits first (inverse of decode), then pack in big-endian order
+    let tailValue = 0
+    if (remaining >= 1) {
+      tailValue |= reverseBits(bytes[index], flipBits) << 24
+    }
     if (remaining >= 2) {
-      tailValue |= (bytes[index + 1] ?? 0) << 8
+      tailValue |= reverseBits(bytes[index + 1], flipBits) << 16
     }
     if (remaining >= 3) {
-      tailValue |= (bytes[index + 2] ?? 0) << 16
+      tailValue |= reverseBits(bytes[index + 2], flipBits) << 8
     }
 
     // Convert to base85 digits (need remaining + 1 digits)
@@ -256,7 +278,7 @@ function b85Encode(bytes: Uint8Array): string {
   return result
 }
 
-export function bitPackDecode(serial: string): {
+export function bitPackDecode(serial: string, flipBits: boolean = true): {
   data: Uint8Array
   originalPrefix: string
   originalPayload: string
@@ -282,7 +304,7 @@ export function bitPackDecode(serial: string): {
   }
 
   // Use the unified Base85 decoder from C code
-  const data = b85Decode(payload)
+  const data = b85Decode(payload, flipBits)
   
   // For compatibility, create dummy arrays for data positions and offsets
   const dataPositions = Array.from({ length: payload.length }, (_, idx) => idx)
@@ -303,10 +325,11 @@ export function bitPackEncode(
   originalPrefix: string,
   _originalPayload: string,
   _dataPositions: number[],
-  _charOffsets: number[]
+  _charOffsets: number[],
+  flipBits: boolean = true
 ): string {
   // Use the unified Base85 encoder from C code implementation
-  const encodedPayload = b85Encode(modifiedData)
+  const encodedPayload = b85Encode(modifiedData, flipBits)
   return originalPrefix + encodedPayload
 }
 
@@ -651,9 +674,9 @@ function decodeEquipmentD(
  * Decode item serial
  * Main entry point for decoding
  */
-export function decodeItemSerial(serial: string): DecodedItem {
+export function decodeItemSerial(serial: string, flipBits: boolean = true): DecodedItem {
   try {
-    const decoded = bitPackDecode(serial);
+    const decoded = bitPackDecode(serial, flipBits);
     const { data, originalPrefix, originalPayload, dataPositions, charOffsets, markers } = decoded;
 
     // Determine item type from serial
@@ -711,7 +734,7 @@ export function decodeItemSerial(serial: string): DecodedItem {
  * Encode item serial
  * Direct port from encode_item_serial in bl4editor.py
  */
-export function encodeItemSerial(decodedItem: DecodedItem): string {
+export function encodeItemSerial(decodedItem: DecodedItem, flipBits: boolean = true): string {
   try {
     const data = new Uint8Array(decodedItem.originalBinary);
     const stats = decodedItem.stats;
@@ -846,7 +869,8 @@ export function encodeItemSerial(decodedItem: DecodedItem): string {
       decodedItem.originalPrefix,
       originalPayload,
       decodedItem.dataPositions,
-      decodedItem.charOffsets
+      decodedItem.charOffsets,
+      flipBits
     );
 
     return newSerial;
