@@ -463,16 +463,44 @@
                             <span class="font-mono text-foreground">{{ manualBitPreview?.valueHexLE ?? '—' }}</span>
                           </div>
                         </div>
-                        <div class="flex flex-wrap gap-4 text-muted-foreground">
-                          <span>Unsigned (BE): <span class="font-mono text-foreground">{{ manualBitPreview?.valueDec ?? '—' }}</span></span>
+                        <div class="flex items-center gap-2">
+                          <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="useContinuationBit" 
+                              class="w-4 h-4 rounded border-border/60 bg-background text-accent focus:ring-2 focus:ring-ring focus:ring-offset-2" />
+                            <span class="text-xs text-muted-foreground">Use continuation bit (read chunks until continuation bit = 0)</span>
+                          </label>
+                        </div>
+                        <div class="flex flex-wrap gap-4 text-muted-foreground items-center">
+                          <label class="flex items-center gap-1">
+                            <span>Unsigned (BE):</span>
+                            <input v-model="editingValueUnsignedBE" type="text" @blur="handleValueEdit('unsignedBE')" @keydown.enter="handleValueEdit('unsignedBE')"
+                              class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                          </label>
                           <span>Signed (BE): <span class="font-mono text-foreground">{{ manualBitPreview?.valueDecSigned ?? '—' }}</span></span>
-                          <span>Unsigned (LE): <span class="font-mono text-foreground">{{ manualBitPreview?.valueDecLE ?? '—' }}</span></span>
+                          <label class="flex items-center gap-1">
+                            <span>Unsigned (LE):</span>
+                            <input v-model="editingValueUnsignedLE" type="text" @blur="handleValueEdit('unsignedLE')" @keydown.enter="handleValueEdit('unsignedLE')"
+                              class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                          </label>
                           <span>Signed (LE): <span class="font-mono text-foreground">{{ manualBitPreview?.valueDecLESigned ?? '—' }}</span></span>
+                        </div>
+                        <div class="flex flex-wrap gap-4 text-muted-foreground items-center">
+                          <label class="flex items-center gap-1">
+                            <span>Inverted (BE):</span>
+                            <input v-model="editingValueInvertedBE" type="text" @blur="handleValueEdit('invertedBE')" @keydown.enter="handleValueEdit('invertedBE')"
+                              class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                          </label>
+                          <label class="flex items-center gap-1">
+                            <span>Inverted (LE):</span>
+                            <input v-model="editingValueInvertedLE" type="text" @blur="handleValueEdit('invertedLE')" @keydown.enter="handleValueEdit('invertedLE')"
+                              class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                          </label>
                         </div>
                         <div class="flex flex-wrap gap-4 text-muted-foreground">
                           <span>Bits: <span class="font-mono text-foreground">{{ manualBitPreview?.length ?? 0 }}</span></span>
                           <span>Bytes: <span class="font-mono text-foreground">{{ manualBitPreview?.byteLength ?? 0 }}</span></span>
                           <span>Byte span: <span class="font-mono text-foreground">{{ manualBitPreview?.byteSpan ?? 0 }}</span></span>
+                          <span v-if="useContinuationBit && manualBitPreview?.length">Varint range: <span class="font-mono text-foreground">{{ manualBitPreview.start }}-{{ manualBitPreview.start + manualBitPreview.length - 1 }}</span></span>
                         </div>
                         <div class="flex flex-wrap gap-4 text-muted-foreground">
                           <span>Start byte: <span class="font-mono text-foreground">{{ formatBytePosition(manualBitPreview, 'start') }}</span></span>
@@ -480,7 +508,7 @@
                           <span>Bit offset: <span class="font-mono text-foreground">{{ formatBitOffset(manualBitPreview) }}</span></span>
                         </div>
                         <code class="block max-h-64 overflow-auto font-mono break-all whitespace-pre-wrap rounded bg-card/60 px-2 py-1 text-foreground">
-                          <span class="text-muted-foreground">{{ manualBitPreview?.prefix ?? '' }}</span><span class="bg-accent/30 text-accent-foreground font-semibold">{{ manualBitPreview?.selection ?? '' }}</span><span class="text-muted-foreground">{{ manualBitPreview?.suffix ?? '' }}</span>
+                          <span class="text-muted-foreground">{{ manualBitPreview?.prefix ?? '' }}</span><template v-if="useContinuationBit && formattedBitSelection"><span v-for="(segment, idx) in formattedBitSelection" :key="idx" :class="segment.isContinuation ? 'bg-blue-500/30 text-blue-600 font-bold px-0.5' : 'bg-accent/30 text-accent-foreground font-semibold'">{{ segment.text }}</span></template><span v-else class="bg-accent/30 text-accent-foreground font-semibold">{{ manualBitPreview?.selection ?? '' }}</span><span class="text-muted-foreground">{{ manualBitPreview?.suffix ?? '' }}</span>
                         </code>
                         <div class="flex flex-wrap gap-4 text-muted-foreground">
                           <span>Serial chunk: <span class="font-mono text-foreground">{{ formatSerialChunk(manualBitPreview) }}</span></span>
@@ -690,6 +718,8 @@ interface ManualBitPreview {
   valueHexLE: string;
   valueDecLE: string;
   valueDecLESigned: string;
+  valueDecInverted: string;
+  valueDecInvertedLE: string;
   byteLength: number;
   byteSpan: number;
   start: number;
@@ -711,6 +741,9 @@ interface ManualBitPreview {
   serialPreviewPrefix: string;
   serialPreviewSelection: string;
   serialPreviewSuffix: string;
+  selectionWithoutContinuationBits: string;
+  useContinuationBit: boolean;
+  continuationBitChunkSize: number;
 }
 
 interface BitDiffSegment {
@@ -765,8 +798,13 @@ const debugConfig = reactive<DebugConfig>({
 
 const manualBitStart = ref(0)
 const manualBitLength = ref(16)
+const useContinuationBit = ref(false)
 const compareSerialInput = ref('')
 const flipBits = ref(true) // Toggle for bit reversal (default: enabled for BL4 serials)
+const editingValueUnsignedBE = ref('')
+const editingValueUnsignedLE = ref('')
+const editingValueInvertedBE = ref('')
+const editingValueInvertedLE = ref('')
 
 function bitsToByteArray(bits: string): number[] {
   const bytes: number[] = [];
@@ -933,16 +971,7 @@ const hexComparisonRows = computed<{ base: HexComparisonRow[], compare: HexCompa
 function bytesToBitString(bytes: Uint8Array): string {
   let result = '';
   for (let i = 0; i < bytes.length; i++) {
-    let byte = bytes[i];
-    if (flipBits.value) {
-      // Reverse bits: 76543210 => 01234567
-      let reversed = 0;
-      for (let j = 0; j < 8; j++) {
-        reversed = (reversed << 1) | (byte & 1);
-        byte >>>= 1;
-      }
-      byte = reversed & 0xFF;
-    }
+    const byte = bytes[i];
     result += byte.toString(2).padStart(8, '0');
   }
   return result;
@@ -1005,6 +1034,133 @@ function formatSerialCharRange(preview: ManualBitPreview | null): string {
     return `char ${start}`;
   }
   return `${start}-${end}`;
+}
+
+function handleValueEdit(type: 'unsignedBE' | 'unsignedLE' | 'invertedBE' | 'invertedLE') {
+  if (!manualBitPreview.value || !decodedItem.value || decodedItem.value.itemType === 'error') {
+    return;
+  }
+
+  let newValueStr = '';
+  switch (type) {
+    case 'unsignedBE':
+      newValueStr = editingValueUnsignedBE.value;
+      break;
+    case 'unsignedLE':
+      newValueStr = editingValueUnsignedLE.value;
+      break;
+    case 'invertedBE':
+      newValueStr = editingValueInvertedBE.value;
+      break;
+    case 'invertedLE':
+      newValueStr = editingValueInvertedLE.value;
+      break;
+  }
+
+  // Parse the value
+  let newValue: bigint;
+  try {
+    newValue = BigInt(newValueStr.trim());
+    if (newValue < 0n) {
+      return; // Don't allow negative values for unsigned
+    }
+  } catch {
+    return; // Invalid number
+  }
+
+  const preview = manualBitPreview.value;
+  // Account for continuation bits when calculating actual data length
+  const { selectionWithoutContinuationBits } = preview;
+  const dataBits = selectionWithoutContinuationBits.split('');
+  const totalBitLength = preview.length; // Total including continuation bits
+  
+  // Convert value to binary string (using data length)
+  let newBits = newValue.toString(2).padStart(dataBits.length, '0');
+  
+  // Truncate if too long
+  if (newBits.length > dataBits.length) {
+    newBits = newBits.slice(newBits.length - dataBits.length);
+  }
+  
+  // Handle different types
+  if (type === 'unsignedLE' || type === 'invertedLE') {
+    // For LE, we need to reverse the byte order
+    // Pad to byte boundary
+    const paddedBits = newBits.padStart(Math.ceil(newBits.length / 8) * 8, '0');
+    const bytes: number[] = [];
+    for (let i = 0; i < paddedBits.length; i += 8) {
+      bytes.push(parseInt(paddedBits.slice(i, i + 8), 2));
+    }
+    // Reverse bytes
+    bytes.reverse();
+    // Convert back to bits
+    newBits = bytes.map(b => b.toString(2).padStart(8, '0')).join('');
+    // Trim back to original length
+    newBits = newBits.slice(newBits.length - dataBits.length);
+  }
+  
+  if (type === 'invertedBE' || type === 'invertedLE') {
+    // Reverse the bit order (since inverted shows reversed)
+    newBits = newBits.split('').reverse().join('');
+  }
+
+  // Now reconstruct the full bit string including continuation bits
+  let reconstructedBits = '';
+  let dataBitIndex = 0;
+  
+  if (preview.useContinuationBit) {
+    // Reconstruct with continuation bits
+    const chunkSize = preview.continuationBitChunkSize;
+    for (let i = 0; i < totalBitLength;) {
+      // Add chunk of data bits
+      const chunkEnd = Math.min(dataBitIndex + chunkSize, dataBits.length);
+      const chunkLen = chunkEnd - dataBitIndex;
+      reconstructedBits += newBits.slice(dataBitIndex, dataBitIndex + chunkLen);
+      dataBitIndex += chunkLen;
+      i += chunkLen;
+      
+      // Add continuation bit if not at the end
+      if (i < totalBitLength) {
+        const isLastChunk = dataBitIndex >= dataBits.length;
+        reconstructedBits += isLastChunk ? '0' : '1';
+        i++;
+      }
+    }
+  } else {
+    reconstructedBits = newBits;
+  }
+
+  // Replace the bits in the original bit string
+  const bitString = debugAnalysis.value.bitString;
+  const start = preview.start;
+  const newBitString = bitString.slice(0, start) + reconstructedBits + bitString.slice(start + totalBitLength);
+  
+  // Convert back to bytes
+  const newBytes = new Uint8Array(Math.ceil(newBitString.length / 8));
+  for (let i = 0; i < newBitString.length; i += 8) {
+    const byteBits = newBitString.slice(i, i + 8).padEnd(8, '0');
+    newBytes[Math.floor(i / 8)] = parseInt(byteBits, 2);
+  }
+  
+  // Update the decoded item with new binary data
+  if (decodedItem.value) {
+    decodedItem.value.originalBinary = newBytes;
+    
+    // Re-encode to update the serial using bitPackEncode directly
+    try {
+      const newSerial = bitPackEncode(
+        newBytes,
+        decodedItem.value.originalPrefix,
+        decodedItem.value.originalPayload,
+        decodedItem.value.dataPositions,
+        decodedItem.value.charOffsets,
+        flipBits.value
+      );
+      serialInput.value = newSerial;
+    } catch (error) {
+      console.error('Failed to re-encode serial after value edit:', error);
+    }
+  }
 }
 
 const compareAnalysis = computed<CompareAnalysis>(() => {
@@ -1458,6 +1614,7 @@ const debugAnalysis = computed<DebugAnalysisResult>(() => {
     return empty;
   }
 
+  // Bit flipping happens during decode, not during display
   const bitString = bytesToBitString(decodedItem.value.originalBinary);
   const totalBits = bitString.length;
   let cursor = 0;
@@ -1639,9 +1796,52 @@ const manualBitPreview = computed<ManualBitPreview | null>(() => {
   }
 
   const start = Math.max(0, Math.min(manualBitStart.value, total));
-  const rawLength = Math.max(0, manualBitLength.value);
-  const end = Math.min(total, start + rawLength);
-  const selection = bitString.slice(start, end);
+  const chunkSize = Math.max(0, manualBitLength.value);
+  
+  let selection = '';
+  let selectionWithoutContinuationBits = ''; // For value calculations
+  let actualEnd = start;
+  
+  // If continuation bit mode is enabled, read chunks until continuation bit is 0
+  if (useContinuationBit.value && chunkSize > 0) {
+    let cursor = start;
+    let continueBit = 1;
+    
+    while (continueBit === 1 && cursor < total) {
+      // Read the chunk
+      const chunkEnd = Math.min(total, cursor + chunkSize);
+      const chunk = bitString.slice(cursor, chunkEnd);
+      
+      if (chunk.length === 0) {
+        break;
+      }
+      
+      // Add chunk to both selections
+      selection += chunk;
+      selectionWithoutContinuationBits += chunk;
+      cursor = chunkEnd;
+      
+      // Check the continuation bit (next bit after chunk)
+      if (cursor < total) {
+        continueBit = parseInt(bitString[cursor], 10);
+        cursor++; // Move past the continuation bit
+        
+        // Add the continuation bit to the selection for visualization only
+        selection += continueBit.toString();
+        // Don't add continuation bit to the value calculation
+      } else {
+        break;
+      }
+    }
+    
+    actualEnd = cursor;
+  } else {
+    // Normal mode: just read the specified length
+    actualEnd = Math.min(total, start + chunkSize);
+    selection = bitString.slice(start, actualEnd);
+    selectionWithoutContinuationBits = selection;
+  }
+  
   const hasSelection = selection.length > 0;
   const startByteIndex = Math.floor(start / 8);
   const startBitOffset = start % 8;
@@ -1654,14 +1854,13 @@ const manualBitPreview = computed<ManualBitPreview | null>(() => {
   let byteSpan = 0;
 
   if (hasSelection) {
-    endByteIndex = Math.floor((end - 1) / 8);
-    endBitOffset = (end - 1) % 8;
+    endByteIndex = Math.floor((actualEnd - 1) / 8);
+    endBitOffset = (actualEnd - 1) % 8;
     endRowOffset = (Math.floor(endByteIndex / 16) * 16).toString(16).padStart(4, '0').toUpperCase();
     endColumn = (endByteIndex % 16).toString(16).toUpperCase();
     byteSpan = endByteIndex - startByteIndex + 1;
   }
 
-  const byteLength = selection.length % 8 === 0 ? selection.length / 8 : 0;
   const serialPrefix = decodedItem.value?.originalPrefix ?? '';
   const payload = decodedItem.value?.originalPayload ?? '';
   const serialPrefixLength = serialPrefix.length;
@@ -1750,6 +1949,8 @@ const manualBitPreview = computed<ManualBitPreview | null>(() => {
       valueHexLE: '—',
       valueDecLE: '—',
       valueDecLESigned: '—',
+      valueDecInverted: '—',
+      valueDecInvertedLE: '—',
       byteLength: 0,
       byteSpan,
       start,
@@ -1770,17 +1971,23 @@ const manualBitPreview = computed<ManualBitPreview | null>(() => {
       serialPrefixLength,
       serialPreviewPrefix,
       serialPreviewSelection,
-      serialPreviewSuffix
+      serialPreviewSuffix,
+      selectionWithoutContinuationBits: '',
+      useContinuationBit: useContinuationBit.value,
+      continuationBitChunkSize: chunkSize
     };
   }
 
   const prefix = bitString.slice(0, start);
-  const suffix = bitString.slice(end);
-  const valueBig = bitsToBigInt(selection);
+  const suffix = bitString.slice(actualEnd);
+  
+  // Use selectionWithoutContinuationBits for all value calculations
+  const valueString = selectionWithoutContinuationBits;
+  const valueBig = bitsToBigInt(valueString);
   
   // Calculate signed value for BE (two's complement)
-  const bitLength = selection.length;
-  const signBit = selection[0] === '1';
+  const bitLength = valueString.length;
+  const signBit = valueString[0] === '1';
   let valueDecSigned: string;
   if (signBit && bitLength > 0) {
     // Negative number in two's complement
@@ -1791,13 +1998,17 @@ const manualBitPreview = computed<ManualBitPreview | null>(() => {
     valueDecSigned = valueBig.toString(10);
   }
 
+  // Calculate byte length based on value string (without continuation bits)
+  const valueBitLength = valueString.length;
+  const valueByteLength = valueBitLength % 8 === 0 ? valueBitLength / 8 : 0;
+
   // Calculate LE values for all byte lengths >= 1
   let valueHexLE: string;
   let valueDecLE: string;
   let valueDecLESigned: string;
   
-  if (byteLength >= 1) {
-    const bytes = bitsToByteArray(selection);
+  if (valueByteLength >= 1) {
+    const bytes = bitsToByteArray(valueString);
     let leValue = 0n;
     for (let i = 0; i < bytes.length; i++) {
       leValue += BigInt(bytes[i]) << BigInt(8 * i);
@@ -1822,17 +2033,37 @@ const manualBitPreview = computed<ManualBitPreview | null>(() => {
     valueDecLESigned = '—';
   }
 
+  // Calculate inverted values (reverse bit order: first bit becomes last)
+  const invertedSelection = valueString.split('').reverse().join('');
+  const invertedValueBig = bitsToBigInt(invertedSelection);
+  const valueDecInverted = invertedValueBig.toString(10);
+  
+  // Calculate inverted LE
+  let valueDecInvertedLE: string;
+  if (valueByteLength >= 1) {
+    const invertedBytes = bitsToByteArray(invertedSelection);
+    let invertedLeValue = 0n;
+    for (let i = 0; i < invertedBytes.length; i++) {
+      invertedLeValue += BigInt(invertedBytes[i]) << BigInt(8 * i);
+    }
+    valueDecInvertedLE = invertedLeValue.toString(10);
+  } else {
+    valueDecInvertedLE = '—';
+  }
+
   return {
     prefix,
     selection,
     suffix,
-    valueHex: bitsToHexString(selection) ?? '0x0',
+    valueHex: bitsToHexString(valueString) ?? '0x0',
     valueDec: valueBig.toString(10),
     valueDecSigned,
     valueHexLE,
     valueDecLE,
     valueDecLESigned,
-    byteLength,
+    valueDecInverted,
+    valueDecInvertedLE,
+    byteLength: valueByteLength,
     byteSpan,
     start,
     length: selection.length,
@@ -1852,7 +2083,10 @@ const manualBitPreview = computed<ManualBitPreview | null>(() => {
     serialPrefixLength,
     serialPreviewPrefix,
     serialPreviewSelection,
-    serialPreviewSuffix
+    serialPreviewSuffix,
+    selectionWithoutContinuationBits,
+    useContinuationBit: useContinuationBit.value,
+    continuationBitChunkSize: chunkSize
   };
 });
 
@@ -1866,6 +2100,36 @@ const selectedByteIndices = computed(() => {
     set.add(i);
   }
   return set;
+});
+
+const formattedBitSelection = computed(() => {
+  const preview = manualBitPreview.value;
+  if (!preview || !useContinuationBit.value || !preview.selection) {
+    return null;
+  }
+  
+  // Parse the selection to identify chunks and continuation bits
+  const chunkSize = manualBitLength.value;
+  const selection = preview.selection;
+  const segments: { text: string; isContinuation: boolean }[] = [];
+  
+  let i = 0;
+  while (i < selection.length) {
+    // Read chunk
+    const chunk = selection.slice(i, i + chunkSize);
+    if (chunk.length > 0) {
+      segments.push({ text: chunk, isContinuation: false });
+      i += chunk.length;
+    }
+    
+    // Read continuation bit if present
+    if (i < selection.length) {
+      segments.push({ text: selection[i], isContinuation: true });
+      i++;
+    }
+  }
+  
+  return segments;
 });
 
 function getHexCellHighlight(byteIndex: number, changed: boolean): string {
@@ -1919,9 +2183,26 @@ watch(manualBitLength, (value) => {
   }
 });
 
+// Sync editing value fields with manualBitPreview
+watch(manualBitPreview, (preview) => {
+  if (preview) {
+    editingValueUnsignedBE.value = preview.valueDec;
+    editingValueUnsignedLE.value = preview.valueDecLE;
+    editingValueInvertedBE.value = preview.valueDecInverted;
+    editingValueInvertedLE.value = preview.valueDecInvertedLE;
+  } else {
+    editingValueUnsignedBE.value = '';
+    editingValueUnsignedLE.value = '';
+    editingValueInvertedBE.value = '';
+    editingValueInvertedLE.value = '';
+  }
+}, { immediate: true });
+
 // Watch for flipBits changes to re-decode
 watch(flipBits, () => {
   if (serialInput.value) {
+    // Reset original binary data so the re-decoded data becomes the new baseline
+    originalBinaryData.value = null;
     handleDecode();
   }
 });
