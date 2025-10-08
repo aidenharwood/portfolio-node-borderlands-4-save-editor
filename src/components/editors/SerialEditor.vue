@@ -9,11 +9,12 @@
           enter-to-class="opacity-100 scale-100" leave-active-class="transition-all duration-200"
           leave-from-class="opacity-0 scale-95" leave-to-class="opacity-100 scale-100">
           <div v-if="show"
-            class="relative max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-xl shadow-2xl">
+            class="relative h-[90vh] w-full max-w-3xl overflow-hidden rounded-xl shadow-2xl flex flex-col">
             <SerialEditorFullPage
               :serial="serial"
               :flags="flags"
               :state_flags="state_flags"
+              :is-modal="true"
               @close="handleClose"
               @save="handleSave"
             />

@@ -822,9 +822,12 @@ interface Props {
   serial: string
   flags?: number
   state_flags?: number
+  isModal?: boolean // Whether this is displayed in a modal (vs full page)
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isModal: false
+})
 const emit = defineEmits<{
   close: []
   save: [payload: { serial: string; flags?: number; state_flags?: number }]
@@ -1011,7 +1014,7 @@ interface CompareAnalysis {
   compareBytes: Uint8Array;
 }
 
-const showDebugPanel = ref(true)
+const showDebugPanel = ref(!props.isModal) // Expanded by default in full page, collapsed in modal
 
 const debugConfig = reactive<DebugConfig>({
   maxDatabaseVersion: 0,
@@ -1048,11 +1051,7 @@ const fieldDefinitions: StructureFieldDef[] = [
   { name: 'Unknown flag', type: 'bits', length: 1 },
   { name: 'Unknown int5 (from prev flag)', type: 'bits', length: 5, conditional: true },
   { name: 'Unknown int5', type: 'bits', length: 5 },
-  { name: 'Unknown flag', type: 'bits', length: 1 },
-  { name: 'Unknown int5 (from prev flag)', type: 'bits', length: 5, conditional: true },
-  { name: 'Unknown int8', type: 'bits', length: 8 },
-  { name: 'Unknown int8', type: 'bits', length: 8 },
-  { name: 'Unknown int8', type: 'bits', length: 8 },
+  { name: 'Unknown int25', type: 'bits', length: 25 },
   { name: 'Level', type: 'varint', length: 4, reverse: true, highlightBits: true, addToEditor: true },
 ]
 
@@ -3305,5 +3304,7 @@ export default {}
   max-height: 100dvh; /* Dynamic viewport height for mobile */
   overflow: hidden; /* Prevent outer overflow, let inner content scroll */
   border-radius: 0.75rem; /* Match rounded-xl */
+  display: flex;
+  flex-direction: column;
 }
 </style>
