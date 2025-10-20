@@ -55,6 +55,50 @@
 
       </div>
 
+      <!-- Deserialized String Display -->
+      <div v-if="deserializedString" class="rounded-lg border border-border/60 bg-card/60 p-4 space-y-3">
+        <!-- Human-readable decoded info -->
+        <div v-if="nicnlDecoded" class="space-y-2">
+          <span class="text-sm font-medium text-foreground">Decoded Information</span>
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div class="flex flex-col">
+              <span class="text-xs text-muted-foreground">Level</span>
+              <span class="font-semibold">{{ nicnlDecoded.level || 'N/A' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs text-muted-foreground">Manufacturer</span>
+              <span>{{ nicnlDecoded.manufacturer || 'Unknown' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs text-muted-foreground">Item Type</span>
+              <span>{{ nicnlDecoded.weaponType || 'Unknown' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs text-muted-foreground">Random Seed</span>
+              <span>{{ nicnlDecoded.randomSeed || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Deserialized format string -->
+        <div class="pt-3 border-t border-border/60 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-foreground">Deserialized Format</span>
+            <button type="button" @click="copyToClipboard(deserializedString)"
+              :class="[BUTTON_BASE, 'ml-0', 'rounded-md', 'px-2']">
+              <i class="pi pi-copy text-xs"></i>
+              Copy
+            </button>
+          </div>
+          <div class="font-mono text-xs bg-background rounded-md p-3 break-all text-foreground">
+            {{ deserializedString }}
+          </div>
+          <div class="text-xs text-muted-foreground italic">
+            Note: Parts section format is under research. Currently showing fields only.
+          </div>
+        </div>
+      </div>
+
       <!-- Stats Editor (only show when decoded) -->
       <div v-if="decodedItem && decodedItem.itemType !== 'error'" class="space-y-4">
         <!-- Item Info -->
@@ -170,615 +214,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Debug Inspector -->
-        <div class="rounded-lg border border-border/60 bg-card/60 p-4">
-          <div class="flex items-center justify-between gap-3 mb-3">
-            <div>
-              <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide">Debug Inspector</h3>
-              <p class="text-xs text-muted-foreground">Bit-level breakdown to help reverse engineer serial structure.
-              </p>
-            </div>
-            <div class="flex items-center gap-3">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <span class="text-xs text-muted-foreground">Reverse bits</span>
-                <input type="checkbox" v-model="flipBits"
-                  class="w-4 h-4 rounded border-border/60 bg-background text-accent focus:ring-2 focus:ring-ring focus:ring-offset-2" />
-              </label>
-              <button type="button" :class="[BUTTON_BASE, 'ml-0', 'rounded-md', 'px-3', 'py-1.5', 'bg-background/80']"
-                @click="showDebugPanel = !showDebugPanel">
-                <i class="pi" :class="showDebugPanel ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-                <span>{{ showDebugPanel ? 'Hide' : 'Show' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div v-if="showDebugPanel" class="space-y-4">
-            <!-- <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
-                        Max DB Version
-                        <input v-model.number="debugConfig.maxDatabaseVersion" type="number" min="0"
-                          class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground"
-                          placeholder="0 = unknown" />
-                      </label>
-                      <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
-                        InventoryBalance bits
-                        <input v-model.number="debugConfig.balanceBits" type="number" min="0" max="64"
-                          class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground"
-                          placeholder="Set manually" />
-                      </label>
-                      <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
-                        InventoryData bits
-                        <input v-model.number="debugConfig.inventoryBits" type="number" min="0" max="64"
-                          class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground" />
-                      </label>
-                      <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
-                        ManufacturerData bits
-                        <input v-model.number="debugConfig.manufacturerBits" type="number" min="0" max="64"
-                          class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground" />
-                      </label>
-                      <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
-                        Part entry bits
-                        <input v-model.number="debugConfig.partBits" type="number" min="0" max="64"
-                          class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground"
-                          placeholder="Defaults to InventoryData" />
-                      </label>
-                      <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
-                        Generic part bits
-                        <input v-model.number="debugConfig.genericPartBits" type="number" min="0" max="64"
-                          class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground" />
-                      </label>
-                    </div> -->
-
-            <div class="rounded-md border border-border/50 bg-background/70 p-3 text-xs space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="font-medium text-muted-foreground uppercase tracking-wide">Serial Comparator</span>
-                <button type="button" v-if="compareSerialInput"
-                  class="inline-flex items-center gap-1 rounded border border-border/60 px-2 py-1 text-xs text-muted-foreground transition hover:text-foreground hover:bg-muted/30"
-                  @click="compareSerialInput = ''">
-                  <i class="pi pi-times"></i>
-                  Clear
-                </button>
-              </div>
-              <input v-model.trim="compareSerialInput" type="text"
-                placeholder="Paste another serial to compute bit diffs"
-                class="w-full rounded-md border border-border/60 bg-background px-3 py-2 font-mono text-[11px] text-foreground" />
-              <p v-if="compareAnalysis.error" class="text-xs text-destructive flex items-center gap-1">
-                <i class="pi pi-exclamation-triangle"></i>
-                {{ compareAnalysis.error }}
-              </p>
-              <template v-else-if="compareAnalysis.active">
-
-                <!-- LCS Inline Diff -->
-                <div v-if="compareAnalysis.hasChanges" class="space-y-3">
-                  <!-- Serial Comparison -->
-                  <div class="rounded-lg border border-border/60 bg-card/60 p-4">
-                    <div class="text-sm font-semibold text-foreground uppercase tracking-wide mb-3">Serial Comparison
-                    </div>
-                    <!-- Base Serial -->
-                    <div class="text-xs text-muted-foreground mb-1">Base</div>
-                    <div class="font-mono text-xs bg-background rounded-md p-3 mb-3 break-all">
-                      {{ serialInput }}
-                    </div>
-
-                    <!-- Compare Serial -->
-                    <div class="text-xs text-muted-foreground mb-1">Compare</div>
-                    <div class="font-mono text-xs bg-background rounded-md p-3 break-all">
-                      {{ compareSerialInput }}
-                    </div>
-                  </div>
-
-                  <!-- Hex Comparison -->
-                  <div class="rounded-lg border border-border/60 bg-card/60 p-4">
-                    <div class="flex items-center justify-between mb-3">
-                      <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide">Hex Comparison</h3>
-                      <div class="text-xs text-muted-foreground">
-                        Base: {{ compareAnalysis.baseBytes.length }} bytes / Compare: {{
-                          compareAnalysis.compareBytes.length }} bytes
-                      </div>
-                    </div>
-
-                    <div class="space-y-3">
-                      <!-- Base Hex -->
-                      <div>
-                        <div class="text-xs text-muted-foreground mb-1">Base</div>
-                        <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
-                          <div class="flex gap-4">
-                            <!-- Offset column -->
-                            <div class="text-muted-foreground select-none">
-                              <div v-for="row in hexComparisonRows.base" :key="row.offset">{{ row.offset }}</div>
-                            </div>
-                            <!-- Hex data -->
-                            <div class="flex-1">
-                              <div v-for="row in hexComparisonRows.base" :key="row.offset" class="whitespace-nowrap">
-                                <span v-for="(byte, idx) in row.bytes" :key="idx" :class="[
-                                  'inline-block w-6 text-center',
-                                  byte.baseValue !== undefined ? (
-                                    byte.status === 'removed' ? 'bg-red-500/20 text-red-600 font-semibold' :
-                                      byte.status === 'changed' ? 'bg-red-500/20 text-red-600 font-semibold' :
-                                        'text-muted-foreground'
-                                  ) : 'text-muted-foreground/30'
-                                ]">
-                                  {{ byte.baseValue !== undefined ? byte.baseValue.toString(16).padStart(2,
-                                  '0').toUpperCase() : '--' }}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Compare Hex -->
-                      <div>
-                        <div class="text-xs text-muted-foreground mb-1">Compare</div>
-                        <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
-                          <div class="flex gap-4">
-                            <!-- Offset column -->
-                            <div class="text-muted-foreground select-none">
-                              <div v-for="row in hexComparisonRows.compare" :key="row.offset">{{ row.offset }}</div>
-                            </div>
-                            <!-- Hex data -->
-                            <div class="flex-1">
-                              <div v-for="row in hexComparisonRows.compare" :key="row.offset" class="whitespace-nowrap">
-                                <span v-for="(byte, idx) in row.bytes" :key="idx" :class="[
-                                  'inline-block w-6 text-center',
-                                  byte.compareValue !== undefined ? (
-                                    byte.status === 'added' ? 'bg-green-500/20 text-green-600 font-semibold' :
-                                      byte.status === 'changed' ? 'bg-green-500/20 text-green-600 font-semibold' :
-                                        'text-muted-foreground'
-                                  ) : 'text-muted-foreground/30'
-                                ]">
-                                  {{ byte.compareValue !== undefined ? byte.compareValue.toString(16).padStart(2,
-                                  '0').toUpperCase() : '--' }}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Binary Comparison -->
-                  <div class="rounded-lg border border-border/60 bg-card/60 p-4">
-                    <div class="flex items-center justify-between mb-3">
-                      <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide">Binary Comparison</h3>
-                      <div class="text-xs text-muted-foreground">
-                        Base: {{ compareAnalysis.baseBytes.length }} bytes / Compare: {{
-                          compareAnalysis.compareBytes.length }} bytes
-                      </div>
-                    </div>
-
-                    <div class="space-y-3">
-                      <!-- Base Binary -->
-                      <div>
-                        <div class="text-xs text-muted-foreground mb-1">Base</div>
-                        <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
-                          <div class="flex gap-4">
-                            <div class="text-muted-foreground select-none">
-                              <div v-for="row in hexComparisonRows.base" :key="row.offset">{{ row.offset }}</div>
-                            </div>
-                            <div class="flex-1">
-                              <div v-for="row in hexComparisonRows.base" :key="row.offset" class="whitespace-nowrap">
-                                <span v-for="(byte, idx) in row.bytes" :key="idx" :class="[
-                                  idx > 0 ? 'ml-2' : '',
-                                  byte.baseValue !== undefined ? (
-                                    byte.status === 'removed' ? 'bg-red-500/20 text-red-600 font-semibold' :
-                                      byte.status === 'changed' ? 'bg-red-500/20 text-red-600 font-semibold' :
-                                        'text-muted-foreground'
-                                  ) : 'text-muted-foreground/30'
-                                ]">{{ byte.baseValue !== undefined ? byte.baseValue.toString(2).padStart(8,
-                                  '0') : '--------' }}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Compare Binary -->
-                      <div>
-                        <div class="text-xs text-muted-foreground mb-1">Compare</div>
-                        <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
-                          <div class="flex gap-4">
-                            <div class="text-muted-foreground select-none">
-                              <div v-for="row in hexComparisonRows.compare" :key="row.offset">{{ row.offset }}</div>
-                            </div>
-                            <div class="flex-1">
-                              <div v-for="row in hexComparisonRows.compare" :key="row.offset" class="whitespace-nowrap">
-                                <span v-for="(byte, idx) in row.bytes" :key="idx" :class="[
-                                  idx > 0 ? 'ml-2' : '',
-                                  byte.compareValue !== undefined ? (
-                                    byte.status === 'added' ? 'bg-green-500/20 text-green-600 font-semibold' :
-                                      byte.status === 'changed' ? 'bg-green-500/20 text-green-600 font-semibold' :
-                                        'text-muted-foreground'
-                                  ) : 'text-muted-foreground/30'
-                                ]">{{ byte.compareValue !== undefined ?
-                                              byte.compareValue.toString(2).padStart(8, '0') : '--------' }}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <p v-else class="text-xs text-green-700 flex items-center gap-1">
-                  <i class="pi pi-check-circle"></i>
-                  No differences detected - serials are identical.
-                </p>
-              </template>
-              <p v-else class="text-xs text-muted-foreground">Enter a second serial to compare against the currently
-                decoded item.</p>
-            </div>
-
-            <!-- <div class="rounded-md border border-border/50 overflow-hidden">
-                      <table class="w-full text-xs">
-                        <thead class="bg-muted/40 text-muted-foreground uppercase tracking-wide">
-                          <tr>
-                            <th class="px-3 py-2 text-left font-semibold">Field</th>
-                            <th class="px-3 py-2 text-left font-semibold">Bits</th>
-                            <th class="px-3 py-2 text-left font-semibold">Value</th>
-                            <th class="px-3 py-2 text-left font-semibold">Hex / Raw</th>
-                            <th class="px-3 py-2 text-left font-semibold">Notes</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-if="!debugAnalysis.fields.length" class="border-t border-border/40">
-                            <td colspan="5" class="px-3 py-3 text-muted-foreground text-center">Configure bit lengths to start parsing.</td>
-                          </tr>
-                          <tr v-for="field in debugAnalysis.fields" :key="field.id" class="border-t border-border/40">
-                            <td class="px-3 py-2 font-medium text-foreground">{{ field.label }}</td>
-                            <td class="px-3 py-2 text-muted-foreground">{{ field.bitLength }} ({{ field.startBit }}&ndash;{{ field.startBit + field.bitLength - 1 }})</td>
-                            <td class="px-3 py-2 font-mono text-foreground break-all">{{ field.value }}</td>
-                            <td class="px-3 py-2 font-mono text-muted-foreground break-all">
-                              <div v-if="field.hex" class="text-foreground">{{ field.hex }}</div>
-                              <div>{{ field.rawBits }}</div>
-                            </td>
-                            <td class="px-3 py-2 text-muted-foreground">{{ field.note || '—' }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      <div v-if="debugAnalysis.stopReason" class="px-3 py-2 text-xs text-amber-600 border-t border-border/40">
-                        {{ debugAnalysis.stopReason }}
-                      </div>
-                    </div>
-
-                    <div v-if="debugAnalysis.warnings.length"
-                      class="rounded-md border border-amber-400/50 bg-amber-500/10 p-3 text-xs space-y-2">
-                      <div class="flex items-center gap-2 text-amber-700 font-medium">
-                        <i class="pi pi-exclamation-triangle text-sm"></i>
-                        Warnings
-                      </div>
-                      <ul class="space-y-1 list-disc list-inside">
-                        <li v-for="(warning, idx) in debugAnalysis.warnings" :key="idx" class="text-amber-800">
-                          {{ warning }}
-                        </li>
-                      </ul>
-                    </div> -->
-
-            <div class="rounded-md border border-border/50 bg-background/70 p-3 text-xs space-y-3">
-              <div class="flex flex-wrap items-center gap-3 text-muted-foreground">
-                <span>Total bits: {{ debugAnalysis.totalBits }}</span>
-                <span>Consumed: {{ debugAnalysis.consumedBits }}</span>
-                <span>Remaining: {{ debugAnalysis.remainderBits }}</span>
-                <span v-if="debugAnalysis.serialVersion !== null">Serial version: {{ debugAnalysis.serialVersion
-                  }}</span>
-                <button type="button"
-                  class="ml-auto inline-flex items-center gap-1 rounded border border-border/60 px-2 py-1 text-xs text-muted-foreground transition hover:text-foreground hover:bg-muted/30 disabled:opacity-50"
-                  @click="copyToClipboard(debugAnalysis.bitString)" :disabled="!debugAnalysis.bitString">
-                  <i class="pi pi-copy"></i>
-                  Copy bits
-                </button>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Trailing bits:</span>
-                <code class="mt-1 block font-mono break-all rounded bg-card/60 px-2 py-1 text-foreground">
-      {{ debugAnalysis.remainderBitsValue || '(none)' }}
-    </code>
-              </div>
-
-              <!-- Bit String with Highlighting -->
-              <div v-if="annotatedBitString.length > 0">
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-muted-foreground">Bit string (highlighted fields):</span>
-                  <button type="button"
-                    class="inline-flex items-center gap-1 rounded border border-border/60 px-2 py-1 text-xs text-muted-foreground transition hover:text-foreground hover:bg-muted/30 disabled:opacity-50"
-                    @click="copyToClipboard(debugAnalysis.bitString)" :disabled="!debugAnalysis.bitString">
-                    <i class="pi pi-copy"></i>
-                    Copy
-                  </button>
-                </div>
-                <code class="mt-1 block font-mono break-all rounded bg-card/60 px-2 py-1 text-foreground max-h-48 overflow-y-auto">
-                  <span 
-                    v-for="(segment, idx) in annotatedBitString" 
-                    :key="idx"
-                    :class="segment.highlight ? 'underline decoration-2 decoration-accent bg-accent/10 text-accent-foreground font-semibold' : ''"
-                    :title="segment.fieldName">{{ segment.text }}</span>
-                </code>
-              </div>
-
-              <div class="space-y-2">
-                <div class="text-muted-foreground font-medium">Manual Bit Reader</div>
-                <div class="grid grid-cols-1 sm:grid-cols-6 gap-2">
-                  <label class="flex flex-col gap-1 sm:col-span-2">
-                    <span>Start bit</span>
-                    <input v-model.number="manualBitStart" type="number" min="0"
-                      class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground" />
-                  </label>
-                  <label class="flex flex-col gap-1 sm:col-span-2">
-                    <span>Length (bits)</span>
-                    <input v-model.number="manualBitLength" type="number" min="0"
-                      class="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground" />
-                  </label>
-                  <div class="sm:col-span-1 flex flex-col gap-1">
-                    <span>Hex (BE)</span>
-                    <span class="font-mono text-foreground">{{ manualBitPreview?.valueHex ?? '—' }}</span>
-                  </div>
-                  <div class="sm:col-span-1 flex flex-col gap-1">
-                    <span>Hex (LE)</span>
-                    <span class="font-mono text-foreground">{{ manualBitPreview?.valueHexLE ?? '—' }}</span>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" v-model="useContinuationBit"
-                      class="w-4 h-4 rounded border-border/60 bg-background text-accent focus:ring-2 focus:ring-ring focus:ring-offset-2" />
-                    <span class="text-xs text-muted-foreground">Use continuation bit (read chunks until continuation bit
-                      = 0)</span>
-                  </label>
-                </div>
-                <div class="text-xs text-muted-foreground bg-muted/30 rounded p-2 border border-border/40">
-                  <span class="font-medium">💡 Tip:</span> To find why a field moves (e.g., level at bit 49 vs 40),
-                  paste the second serial into the "Compare" field below and look for differences in the hex/binary
-                  comparison.
-                  Variable-length fields (like varints with different values) will cause offsets to shift.
-                </div>
-                <div class="flex flex-wrap gap-4 text-muted-foreground items-center">
-                  <label class="flex items-center gap-1">
-                    <span>Unsigned (BE):</span>
-                    <input v-model="editingValueUnsignedBE" type="text" @blur="handleValueEdit('unsignedBE')"
-                      @keydown.enter="handleValueEdit('unsignedBE')"
-                      class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  </label>
-                  <span>Signed (BE): <span class="font-mono text-foreground">{{ manualBitPreview?.valueDecSigned ?? '—'
-                      }}</span></span>
-                  <label class="flex items-center gap-1">
-                    <span>Unsigned (LE):</span>
-                    <input v-model="editingValueUnsignedLE" type="text" @blur="handleValueEdit('unsignedLE')"
-                      @keydown.enter="handleValueEdit('unsignedLE')"
-                      class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  </label>
-                  <span>Signed (LE): <span class="font-mono text-foreground">{{ manualBitPreview?.valueDecLESigned ??
-                      '—'
-                      }}</span></span>
-                </div>
-                <div class="flex flex-wrap gap-4 text-muted-foreground items-center">
-                  <label class="flex items-center gap-1">
-                    <span>Inverted (BE):</span>
-                    <input v-model="editingValueInvertedBE" type="text" @blur="handleValueEdit('invertedBE')"
-                      @keydown.enter="handleValueEdit('invertedBE')"
-                      class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  </label>
-                  <label class="flex items-center gap-1">
-                    <span>Inverted (LE):</span>
-                    <input v-model="editingValueInvertedLE" type="text" @blur="handleValueEdit('invertedLE')"
-                      @keydown.enter="handleValueEdit('invertedLE')"
-                      class="w-32 font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  </label>
-                </div>
-                <div class="flex flex-wrap gap-4 text-muted-foreground">
-                  <span>Bits: <span class="font-mono text-foreground">{{ manualBitPreview?.length ?? 0 }}</span></span>
-                  <span>Bytes: <span class="font-mono text-foreground">{{ manualBitPreview?.byteLength ?? 0
-                      }}</span></span>
-                  <span>Byte span: <span class="font-mono text-foreground">{{ manualBitPreview?.byteSpan ?? 0
-                      }}</span></span>
-                  <span v-if="useContinuationBit && manualBitPreview?.length">Varint range: <span
-                      class="font-mono text-foreground">{{ manualBitPreview.start }}-{{ manualBitPreview.start +
-                      manualBitPreview.length - 1 }}</span></span>
-                </div>
-                <div class="flex flex-wrap gap-4 text-muted-foreground">
-                  <span>Start byte: <span class="font-mono text-foreground">{{ formatBytePosition(manualBitPreview,
-                      'start')
-                      }}</span></span>
-                  <span>End byte: <span class="font-mono text-foreground">{{ formatBytePosition(manualBitPreview, 'end')
-                      }}</span></span>
-                  <span>Bit offset: <span class="font-mono text-foreground">{{ formatBitOffset(manualBitPreview)
-                      }}</span></span>
-                </div>
-                <div class="space-y-2">
-                  <div class="flex items-center gap-2">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" v-model="editingBitsDirectly"
-                        class="w-4 h-4 rounded border-border/60 bg-background text-accent focus:ring-2 focus:ring-ring focus:ring-offset-2" />
-                      <span class="text-xs text-muted-foreground">Edit bits directly</span>
-                    </label>
-                  </div>
-                  <template v-if="editingBitsDirectly">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-xs text-muted-foreground">Bit string (0s and 1s only)</label>
-                      <input v-model="editingBitsValue" type="text" 
-                        @blur="handleBitStringEdit" 
-                        @keydown.enter="handleBitStringEdit"
-                        @keydown.esc="editingBitsDirectly = false"
-                        placeholder="Enter bits (e.g., 101010)"
-                        class="w-full font-mono text-xs rounded border border-border/60 bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                      <div class="text-xs text-muted-foreground">Current: {{ manualBitPreview?.selection ?? '' }} ({{ manualBitPreview?.length ?? 0 }} bits)</div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <code
-                      class="block max-h-64 overflow-auto font-mono break-all whitespace-pre-wrap rounded bg-card/60 px-2 py-1 text-foreground">
-      <span class="text-muted-foreground">{{ manualBitPreview?.prefix ?? '' }}</span><template
-        v-if="useContinuationBit && formattedBitSelection"><span v-for="(segment, idx) in formattedBitSelection" :key="idx" :class="segment.isContinuation ? 'bg-blue-500/30 text-blue-600 font-bold px-0.5' : 'bg-accent/30 text-accent-foreground font-semibold'">{{ segment.text }}</span></template><span
-        v-else class="bg-accent/30 text-accent-foreground font-semibold">{{ manualBitPreview?.selection ?? ''
-        }}</span><span class="text-muted-foreground">{{ manualBitPreview?.suffix ?? '' }}</span>
-    </code>
-                  </template>
-                </div>
-                <div class="flex flex-wrap gap-4 text-muted-foreground">
-                  <span>Serial chunk: <span class="font-mono text-foreground">{{ formatSerialChunk(manualBitPreview)
-                      }}</span></span>
-                  <span>Serial chars: <span class="font-mono text-foreground">{{ formatSerialCharRange(manualBitPreview)
-                      }}</span></span>
-                  <span>Serial length: <span class="font-mono text-foreground">{{ manualBitPreview?.serialLength ?? 0
-                      }}</span></span>
-                  <span v-if="(manualBitPreview?.serialPrefixLength ?? 0) > 0">Prefix length: <span
-                      class="font-mono text-foreground">{{ manualBitPreview?.serialPrefixLength }}</span></span>
-                </div>
-                <code v-if="manualBitPreview?.serialLength"
-                  class="block max-h-40 overflow-auto font-mono break-all whitespace-pre-wrap rounded bg-card/60 px-2 py-1 text-foreground">
-      <span class="text-muted-foreground">{{ manualBitPreview?.serialPreviewPrefix ?? '' }}</span><span
-        class="bg-accent/30 text-accent-foreground font-semibold">{{ manualBitPreview?.serialPreviewSelection ?? ''
-        }}</span><span class="text-muted-foreground">{{ manualBitPreview?.serialPreviewSuffix ?? '' }}</span>
-    </code>
-              </div>
-            </div>
-
-            <!-- Structure Decoder -->
-            <div class="rounded-md border border-border/50 bg-background/70 p-3 text-xs space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="text-sm font-medium text-foreground">Serial Structure</div>
-                <button type="button" @click="showStructureDecoder = !showStructureDecoder"
-                  class="inline-flex items-center gap-1 rounded border border-border/60 px-2 py-1 text-xs text-muted-foreground transition hover:text-foreground hover:bg-muted/30">
-                  <i :class="showStructureDecoder ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-                  {{ showStructureDecoder ? 'Hide' : 'Show' }}
-                </button>
-              </div>
-
-              <div v-if="showStructureDecoder" class="space-y-3">
-                <div class="text-xs text-muted-foreground">
-                  Field-by-field breakdown of the serial header structure
-                </div>
-
-                <!-- Decoded Fields -->
-                <div class="space-y-1">
-                  <div v-for="(field, idx) in structureFields" :key="idx"
-                    class="rounded border border-border/40 bg-card/40 px-2 py-1.5 hover:bg-muted/20 transition cursor-pointer"
-                    @click="selectedStructureField = field">
-                    <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2 flex-1 min-w-0">
-                        <span class="text-xs font-medium text-foreground truncate">{{ field.name }}</span>
-                        <span class="text-[9px] font-mono text-muted-foreground shrink-0">{{ field.bitStart }}-{{ field.bitEnd }}</span>
-                        <span class="text-[9px] text-muted-foreground shrink-0">{{ field.type }}</span>
-                        <span v-if="field.chunks" class="text-[9px] text-muted-foreground shrink-0">{{ field.chunks }}ch</span>
-                      </div>
-                      <div class="flex items-baseline gap-2 shrink-0">
-                        <template v-if="editingFieldId === field.id">
-                          <input 
-                            ref="fieldEditInputRef"
-                            v-model="editingFieldValue"
-                            @blur="handleFieldEditComplete"
-                            @keydown.enter="handleFieldEditComplete"
-                            @keydown.esc="handleFieldEditCancel"
-                            type="text"
-                            class="w-24 text-sm font-mono rounded border border-accent bg-accent/10 px-2 py-0.5 text-foreground focus:outline-none focus:ring-2 focus:ring-accent" />
-                        </template>
-                        <template v-else>
-                          <div 
-                            class="text-base font-bold font-mono text-accent cursor-text hover:bg-accent/10 px-1 rounded transition"
-                            @dblclick="handleFieldEditStart(field)"
-                            :title="'Double-click to edit. Current: ' + field.value">
-                            {{ field.value }}
-                            <sub class="text-[9px] font-normal text-muted-foreground ml-0.5">
-                              {{ getStructureReversedValue(field) }}
-                            </sub>
-                          </div>
-                        </template>
-                        <span v-if="field.hex" class="text-[9px] font-mono text-muted-foreground">{{ field.hex }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Selected Field Details -->
-                <div v-if="selectedStructureField" class="rounded border border-accent/40 bg-accent/5 p-3 space-y-3">
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="flex-1">
-                      <div class="text-xs font-semibold text-foreground mb-1">{{ selectedStructureField.name }}</div>
-                      <div class="text-[10px] text-muted-foreground">{{ selectedStructureField.type }} • bits {{ selectedStructureField.bitStart }}-{{ selectedStructureField.bitEnd }}</div>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1">
-                      <div class="text-[10px] text-muted-foreground uppercase tracking-wide">Regular Value</div>
-                      <div class="text-xl font-bold font-mono text-foreground">{{ selectedStructureField.value }}</div>
-                      <div class="text-[10px] font-mono text-muted-foreground">{{ selectedStructureField.hex }}</div>
-                    </div>
-                    <div class="space-y-1">
-                      <div class="text-[10px] text-muted-foreground uppercase tracking-wide">Inverse Value</div>
-                      <div class="text-xl font-bold font-mono text-foreground">{{ getStructureReversedValue(selectedStructureField) }}</div>
-                      <div class="text-[10px] font-mono text-muted-foreground">0x{{ parseInt(getStructureReversedValue(selectedStructureField)).toString(16).toUpperCase() }}</div>
-                    </div>
-                  </div>
-                  <div class="font-mono text-xs bg-background rounded p-2 overflow-x-auto break-all">
-                    <template v-if="selectedStructureField.type.startsWith('varint')">
-                      <span v-for="(segment, idx) in formatStructureVarintBits(selectedStructureField)" :key="idx"
-                        :class="segment.isContinuation ? 'bg-blue-500/30 text-blue-600 font-bold px-0.5' : 'bg-accent/30 text-accent-foreground'">{{
-                        segment.text }}</span>
-                    </template>
-                    <span v-else class="bg-accent/30 text-accent-foreground">{{ selectedStructureField.bits }}</span>
-                  </div>
-                </div>
-
-                <!-- Summary -->
-                <div class="flex flex-wrap gap-3 text-[10px] text-muted-foreground pt-2 border-t border-border/40">
-                  <span>Fields: <span class="font-mono text-foreground">{{ structureFields.length }}</span></span>
-                  <span>Decoded: <span class="font-mono text-foreground">{{ structureTotalDecoded }}</span> bits</span>
-                  <span>Remaining: <span class="font-mono text-foreground">{{ debugAnalysis.totalBits -
-                      structureTotalDecoded
-                      }}</span> bits</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hex View -->
-        <div class="rounded-lg border border-border/60 bg-card/60 p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide">Hex Editor</h3>
-            <div class="text-xs text-muted-foreground">
-              {{ decodedItem.length }} bytes
-            </div>
-          </div>
-          <div class="font-mono text-xs bg-background rounded-md p-3 overflow-x-auto">
-            <div class="flex gap-4">
-              <!-- Offset column -->
-              <div class="text-muted-foreground select-none">
-                <div v-for="row in hexRows" :key="row.offset" class="leading-relaxed">
-                  {{ row.offset }}
-                </div>
-              </div>
-              <!-- Hex data -->
-              <div class="flex-1">
-                <div v-for="row in hexRows" :key="row.offset" class="leading-relaxed whitespace-nowrap">
-                  <span v-for="(byte, idx) in row.bytes" :key="idx" @click="handleByteClick(byte.byteIndex)" :class="[
-                    'inline-block w-6 text-center cursor-pointer hover:bg-muted/50 transition-colors',
-                    getHexCellHighlight(byte.byteIndex, byte.changed),
-                    editingByteIndex === byte.byteIndex ? 'ring-2 ring-primary' : ''
-                  ]"
-                    :title="byte.changed ? `Changed from 0x${byte.original?.toString(16).padStart(2, '0').toUpperCase()} to 0x${byte.value.toString(16).padStart(2, '0').toUpperCase()}\nClick to edit` : 'Click to edit'">
-                    <input v-if="editingByteIndex === byte.byteIndex" ref="byteInputRef" v-model="editingByteValue"
-                      @blur="handleByteEditComplete" @keydown.enter="handleByteEditComplete"
-                      @keydown.esc="handleByteEditCancel" maxlength="2"
-                      class="w-6 text-center bg-primary/20 border-0 outline-none text-foreground font-mono text-xs p-0"
-                      style="appearance: none;" />
-                    <span v-else>{{ byte.value.toString(16).padStart(2, '0').toUpperCase() }}</span>
-                  </span>
-                </div>
-              </div>
-              <!-- ASCII column -->
-              <div class="text-muted-foreground">
-                <div v-for="row in hexRows" :key="row.offset" class="leading-relaxed">
-                  <span v-for="(byte, idx) in row.bytes" :key="idx"
-                    :class="getAsciiHighlight(byte.byteIndex, byte.changed)">
-                    {{ byte.ascii }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Error Display -->
@@ -816,6 +251,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, reactive } from 'vue'
 import { decodeItemSerial, bitPackEncode, bitPackDecode, type DecodedItem, type ItemStats } from '../../lib/utils/serial-utils'
+import { decodeSerial, serializeToString } from '../../lib/nicnl-decoder'
 
 // Props & Emits
 interface Props {
@@ -1041,18 +477,17 @@ const editingValueInvertedLE = ref('')
 const editingBitsDirectly = ref(false)
 const editingBitsValue = ref('')
 
-// RAW ANALYSIS MODE - Don't assume structure, just parse what we can confirm
-// We'll parse header bits, then just read sequential varints to find patterns
-// Compare items with firmware vs without to identify which varint field varies
+// Using Nicnl's reverse-engineered decoder for accurate field extraction
+// See src/lib/nicnl-decoder.ts for implementation details
 const fieldDefinitions: StructureFieldDef[] = [
-  { name: 'Unknown byte', type: 'bits', length: 8 },
-  { name: 'Unknown flag', type: 'bits', length: 1 },
-  { name: 'Unknown nibble (from prev flag)', type: 'bits', length: 4, conditional: true },
-  { name: 'Unknown flag', type: 'bits', length: 1 },
-  { name: 'Unknown int5 (from prev flag)', type: 'bits', length: 5, conditional: true },
-  { name: 'Unknown int5', type: 'bits', length: 5 },
-  { name: 'Unknown int25', type: 'bits', length: 25 },
+  { name: 'Prefix', type: 'bits', length: 7 }, // 001 0000 static prefix
+  { name: 'Item Type (major)', type: 'bits', length: 3 }, // 100 or 110
+  { name: 'Item Type', type: 'varint', length: 4, reverse: true, highlightBits: true, addToEditor: true },
+  { name: 'Version', type: 'varint', length: 4, reverse: false, highlightBits: false, addToEditor: false },
+  { name: 'Level Marker', type: 'bits', length: 20 }, // 00000011001000001100
   { name: 'Level', type: 'varint', length: 4, reverse: true, highlightBits: true, addToEditor: true },
+  { name: 'Random Seed (major)', type: 'bits', length: 3 }, // Field ID
+  { name: 'Random Seed', type: 'varint', length: 4, reverse: true, highlightBits: true, addToEditor: true },
 ]
 
 function bitsToByteArray(bits: string): number[] {
@@ -1319,8 +754,25 @@ const structureFields = computed((): StructureField[] => {
   const bitString = debugAnalysis.value.bitString;
   if (!bitString) return [];
 
+  // Try to use Nicnl's decoder for accurate extraction
+  const nicnlDecoded = serialInput.value ? decodeSerial(serialInput.value) : null;
+  
   const fields: StructureField[] = [];
   let cursor = 0;
+
+  // If we have Nicnl's decoded data, use it for known fields
+  const nicnlFields = new Map<string, { value: number, bitStart?: number, bitEnd?: number }>();
+  if (nicnlDecoded) {
+    if (nicnlDecoded.level !== undefined) {
+      nicnlFields.set('Level', { value: nicnlDecoded.level });
+    }
+    if (nicnlDecoded.randomSeed !== undefined) {
+      nicnlFields.set('Random Seed', { value: nicnlDecoded.randomSeed });
+    }
+    if (nicnlDecoded.itemType !== undefined) {
+      nicnlFields.set('Item Type', { value: nicnlDecoded.itemType });
+    }
+  }
 
   for (let i = 0; i < fieldDefinitions.length; i++) {
     const fieldDef = fieldDefinitions[i];
@@ -1365,8 +817,14 @@ const structureFields = computed((): StructureField[] => {
       
       // Decode value accounting for reversal
       let decodedValue = result.value;
-      if (fieldDef.reverse) {
-        // Each chunk's bits are reversed AND chunks are in reverse order
+      
+      // Use Nicnl's decoded value if available for this field
+      const nicnlValue = nicnlFields.get(fieldDef.name);
+      if (nicnlValue !== undefined) {
+        decodedValue = nicnlValue.value;
+        console.log(`[NICNL-DECODE] field="${fieldDef.name}" using Nicnl value=${decodedValue}`);
+      } else if (fieldDef.reverse) {
+        // Fallback to manual decoding with reversal
         const chunkSize = fieldDef.length!;
         const chunks: string[] = [];
         let bitPos = 0;
@@ -1420,6 +878,31 @@ const editableFields = computed(() => {
     const fieldDef = fieldDefinitions.find(def => def.name === field.name);
     return fieldDef?.addToEditor === true;
   });
+});
+
+const deserializedString = computed(() => {
+  if (!serialInput.value) return '';
+  
+  try {
+    const decoded = decodeSerial(serialInput.value);
+    if (!decoded) return '';
+    
+    return serializeToString(decoded);
+  } catch (error) {
+    console.error('Failed to deserialize:', error);
+    return '';
+  }
+});
+
+const nicnlDecoded = computed(() => {
+  if (!serialInput.value) return null;
+  
+  try {
+    return decodeSerial(serialInput.value);
+  } catch (error) {
+    console.error('Failed to decode serial:', error);
+    return null;
+  }
 });
 
 const annotatedBitString = computed(() => {
