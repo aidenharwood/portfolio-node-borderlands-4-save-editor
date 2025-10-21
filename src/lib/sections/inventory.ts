@@ -3,6 +3,7 @@
  */
 
 import { BaseInventorySection, type SerializableSection, type FieldDefinition } from './base'
+import { getItemDisplayName as getFriendlyItemName, tryDecodeSerial, buildNicnlSummary, normalizeNicnlLabel } from '../utils/serial-utils'
 
 /**
  * Backpack inventory section - generates individual collapsible slot sections
@@ -220,19 +221,25 @@ export class LostItemsSection extends BaseInventorySection {
   }
 }
 
-/**
- * Helper function to get item display name from serial
- */
-function getItemDisplayName(serial: string, allItems: any[]): string {
-  if (!serial) return 'None'
-  
-  // Try to find the item in inventory to get more info
-  const item = allItems.find(i => i && i.serial === serial)
-  if (item && typeof item.getName === 'function') {
-    return item.getName()
+function buildEquippedItemLabel(serial: string): string {
+  if (!serial) {
+    return 'None'
   }
-  
-  return `Item: ${serial}`
+
+  const decoded = tryDecodeSerial(serial)
+  const fallback = getFriendlyItemName(serial)
+  const label = buildNicnlSummary(decoded, { fallback })
+
+  if (label) {
+    return label
+  }
+
+  const normalizedItemType = normalizeNicnlLabel(decoded?.itemTypeName)
+  if (normalizedItemType) {
+    return normalizedItemType
+  }
+
+  return fallback
 }
 
 /**
@@ -272,7 +279,7 @@ export class EquippedInventorySection implements SerializableSection {
         { value: '', label: 'None' },
         ...availableItems.map(item => ({
           value: item.serial,
-          label: getItemDisplayName(item.serial, availableItems)
+          label: buildEquippedItemLabel(item.serial)
         }))
       ]
     }))

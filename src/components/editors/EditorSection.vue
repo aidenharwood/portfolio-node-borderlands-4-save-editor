@@ -9,40 +9,38 @@
           class="w-full border-1 rounded-lg section-header flex flex-col gap-4 border-b border-border/40 p-5 sm:flex-row sm:items-start sm:gap-6"
           :class="isCollapsible ? 'cursor-pointer hover:bg-background/60' : ''"
           @click="isCollapsible ? toggleSection() : undefined">
-          <div class="flex flex-1 items-start gap-4">
+          <div class="flex flex-1 items-start gap-4 min-w-0">
             <div v-if="section.icon"
               class="flex h-12 w-12 items-center justify-center rounded-xl text-2xl text-accent shadow-sm">
               <i :class="section.icon"></i>
             </div>
-            <div class="flex flex-col gap-2 w-full">
+            <div class="flex flex-col gap-2 w-full min-w-0">
               <div class="flex flex-wrap items-center gap-3">
                 <h4 class="text-base font-semibold text-foreground">{{ section.title }}</h4>
               </div>
-              <!-- Item summary + serial for slot sections -->
-              <div v-if="isSlotSection && (itemSerial || (props.section as any)?.meta?.serial)"
-                class="mt-1 flex flex-col gap-1">
-                <div class="text-xs text-muted-foreground flex flex-wrap gap-2">
-                  <span v-for="pill in itemMetaPills" :key="pill"
-                    class="inline-flex items-center rounded-full bg-muted/40 px-3 py-1 font-medium text-muted-foreground">
-                    {{ pill }}
-                  </span>
+              <!-- Item summary + actions for slot sections -->
+              <div v-if="isSlotSection && (itemSummary || itemSerial)"
+                class="mt-1 flex flex-col gap-2 overflow-hidden min-w-0">
+                <div v-if="itemSummary" class="text-sm font-semibold text-foreground truncate min-w-0">
+                  {{ itemSummary }}
                 </div>
                 <button v-if="itemSerial" type="button"
-                  :class="[BUTTON_BASE, 'mt-2', 'w-full', 'justify-between', 'px-3', 'font-mono']"
-                  title="Copy serial"
+                  :class="[BUTTON_BASE, 'mt-1', 'w-full', 'justify-between', 'px-3', 'overflow-hidden', 'max-w-full', 'min-w-0', 'whitespace-nowrap']"
+                  :title="`Copy serial \u2022 ${itemSerial}`"
                   @click.stop="handleSerialCopy">
-                  <span class="truncate flex-1 text-left text-xs">{{ itemSerial }}</span>
+                  <span class="truncate flex-1 text-left text-xs font-mono min-w-0">
+                    {{ itemSerial }}
+                  </span>
                   <i class="pi pi-copy text-sm flex-shrink-0"></i>
                 </button>
               </div>
             </div>
 
           </div>
-          <div class="flex flex-col gap-2" @click.stop>
             <div v-if="sectionActions.length" class="flex flex-col gap-2">
               <template v-for="action in sectionActions" :key="action.id">
                 <button type="button"
-                  :class="[BUTTON_BASE, actionButtonClass(action.variant), action.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:border-muted-foreground/50', 'font-semibold', 'uppercase']"
+                  :class="[BUTTON_BASE, actionButtonClass(action.variant), action.disabled ? 'opacity-60 cursor-not-allowed' : 'font-semibold', 'uppercase']"
                   :disabled="action.disabled" :title="action.label"
                   @click.stop="handleActionClick(action.id)">
                   <i v-if="action.icon" :class="[action.icon, action.label ? 'text-xl' : 'text-2xl']"></i>
@@ -59,7 +57,6 @@
             </button>
           </div>
         </div>
-      </div>
 
       <div v-if="hasFields && (expanded || section.collapsible === false)" class="section-content space-y-4 p-5">
         <div class="section-fields space-y-2">
@@ -140,26 +137,19 @@ const itemSerial = computed(() => {
   }
 })
 
-// itemSummary is provided via section.meta.summary now; fall back to itemSerial where needed
-const itemMetaPills = computed(() => {
+// Friendly summary surfaces in slot headers; fallback to serial as needed
+const itemSummary = computed(() => {
   const metaAny = (props.section as any)?.meta
-  if (!metaAny) return [] as string[]
-
-  const summary = typeof metaAny.summary === 'string' ? metaAny.summary : ''
-  const parts = summary
-    .split('•')
-    .map((part: string) => part.trim())
-    .filter(Boolean)
-
-  if (parts.length) {
-    return parts
+  if (metaAny && typeof metaAny.summary === 'string' && metaAny.summary.length > 0) {
+    return metaAny.summary
   }
-
-  if (metaAny.serial) {
-    return [String(metaAny.serial)]
+  if (metaAny && typeof metaAny.serial === 'string' && metaAny.serial.length > 0) {
+    return metaAny.serial
   }
-
-  return [] as string[]
+  if (itemSerial.value) {
+    return itemSerial.value
+  }
+  return ''
 })
 
 const sectionActions = computed(() => {
@@ -194,12 +184,12 @@ const actionButtonClass = (variant: 'primary' | 'secondary' | 'danger' | undefin
     case 'primary':
       return 'text-primary'
     case 'danger':
-      return ' text-destructive'
+      return ' text-destructive hover:border-destructive/50 hover:bg-destructive/10 '
     default:
       return 'text-foreground'
   }
 }
 
 // Standard button base consistent with EditorField
-const BUTTON_BASE = 'inline-flex items-center h-10 gap-2 rounded-lg border px-3 text-xs'
+const BUTTON_BASE = 'inline-flex items-center h-10 gap-2 rounded-lg border border-border/60 bg-background/80 px-3 text-xs font-medium text-foreground transition hover:border-accent/60 hover:bg-accent/10 max-w-full min-w-0'
 </script>

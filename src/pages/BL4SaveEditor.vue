@@ -11,10 +11,10 @@
         </p>
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <i class="pi pi-info-circle"></i>
-          <span>Decryption logic based on the excellent work by</span>
-          <a href="https://github.com/glacierpiece" target="_blank" rel="noopener noreferrer"
+          <span>Based on the amazing work by</span>
+          <a href="https://github.com/Nicnl/borderlands4-serials?tab=readme-ov-file#credits" target="_blank" rel="noopener noreferrer"
             class="text-accent hover:text-accent/80 underline transition-colors">
-            @glacierpiece
+            @Nicnl, @InflamedSebi, @Sparkie & the wider modding community
           </a>
         </div>
       </div>

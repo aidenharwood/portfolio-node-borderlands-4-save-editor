@@ -17,13 +17,13 @@
 				<!-- Serial copy button -->
 				<div v-if="props.inputType === 'string' && isSerialField" class="flex items-center gap-2">
 					<button type="button" @click="copyToClipboard(localValue)"
-						:class="[BUTTON_BASE, 'ml-2', 'rounded-md', 'px-3', 'font-mono']" :title="'Copy serial'">
+						:class="[BUTTON_BASE, 'h-9', 'px-3', 'font-mono']" :title="'Copy serial'">
 						<i class="pi pi-copy"></i>
 						<span class="truncate max-w-[24ch] ml-2">{{ localValue }}</span>
 					</button>
 					<!-- Serial editor quick action (open unified SerialEditor focused on serial) -->
 					<button type="button" @click.stop="() => emit('openItemEditor', props.yamlPath)"
-						class="ml-2 inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs">
+						:class="[BUTTON_BASE, 'h-9', 'px-3', 'text-xs']">
 						<i class="pi pi-code"></i>
 						<span>Edit serial</span>
 					</button>
@@ -109,7 +109,7 @@
 							</div>
 
 							<button type="button" @click="handleArrayRemove(index)"
-								:class="[BUTTON_BASE, 'w-full', 'font-semibold', 'uppercase', 'tracking-wide', 'text-destructive', 'border-destructive/50', 'bg-destructive/10', 'sm:w-auto']">
+								:class="[BUTTON_BASE, 'w-full', 'font-semibold', 'uppercase', 'tracking-wide', 'sm:w-auto']">
 								<i class="pi pi-times text-xs"></i>
 								<span>Remove</span>
 							</button>
@@ -159,7 +159,7 @@
 									</span>
 								</div>
 								<button type="button" @click="removeObjectArrayItem(index)"
-									:class="[BUTTON_BASE, 'font-semibold', 'uppercase', 'tracking-wide', 'text-destructive', 'border-destructive/50', 'bg-destructive/10']">
+									:class="[BUTTON_BASE, 'font-semibold', 'uppercase', 'tracking-wide']">
 									<i class="pi pi-trash text-xs"></i>
 									Remove
 								</button>
@@ -202,7 +202,6 @@ import { computed, ref, watch } from 'vue'
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { copyToClipboard } from '../../lib/utils/clipboard'
 import type { EditorFieldConfig } from '../../lib/types/editor-interfaces'
-import { getItemDisplayName, decodeItemSerial } from '../../lib/utils/serial-utils'
 
 defineOptions({ name: 'EditorField' })
 
@@ -238,7 +237,7 @@ const inputBaseClass =
 	'w-full rounded-lg border border-border/60 bg-background/80 px-3 py-2 text-sm text-foreground shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-60 placeholder:text-muted-foreground/70'
 
 // Standard button base to keep buttons uniform height and alignment
-const BUTTON_BASE = 'inline-flex items-center justify-center h-10 gap-2 rounded-lg border px-3 text-xs'
+const BUTTON_BASE = 'inline-flex items-center justify-center h-10 gap-2 rounded-lg border border-border/60 bg-background/80 px-3 text-xs font-medium text-foreground transition hover:border-accent/60 hover:bg-accent/10'
 
 const isComplexInput = computed(() => ['multiselect', 'array', 'nested', 'objectArray'].includes(props.inputType))
 const inlineLayout = computed(() => !isComplexInput.value)
@@ -454,28 +453,6 @@ const getObjectArrayItemDisplayValue = (item: any) => {
 			current = current[part]
 		} else {
 			return 'Item'
-		}
-	}
-
-	// If the display field contains a serial, try to decode and build a concise summary
-	if (typeof current === 'string' && current.startsWith('@U')) {
-		try {
-			const decoded = decodeItemSerial(current)
-			const typeLabel = decoded?.itemCategory ? String(decoded.itemCategory).replace(/_/g, ' ') : (decoded?.itemType || '')
-			const lvl = decoded?.stats?.level
-			const rar = decoded?.stats?.rarity
-			const p = decoded?.stats?.primaryStat
-			const s = decoded?.stats?.secondaryStat
-			const parts: string[] = []
-		if (typeLabel) parts.push(typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1))
-		if (lvl || lvl === 0) parts.push(`Lv${lvl}`)
-		if (rar || rar === 0) parts.push(`R${rar}`)
-		if (p !== undefined) parts.push(`P:${p}`)
-		if (s !== undefined) parts.push(`S:${s}`)
-		const summary = parts.length > 0 ? parts.join(' • ') : getItemDisplayName(current)
-		return summary
-		} catch (error) {
-			console.warn(`Failed to decode serial for display:`, error)
 		}
 	}
 

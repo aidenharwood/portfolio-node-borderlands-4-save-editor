@@ -3,8 +3,7 @@
     <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
       enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200" leave-from-class="opacity-0"
       leave-to-class="opacity-100">
-      <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-        @click.self="handleClose">
+      <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <Transition enter-active-class="transition-all duration-200" enter-from-class="opacity-0 scale-95"
           enter-to-class="opacity-100 scale-100" leave-active-class="transition-all duration-200"
           leave-from-class="opacity-0 scale-95" leave-to-class="opacity-100 scale-100">

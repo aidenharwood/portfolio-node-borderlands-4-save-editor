@@ -2,12 +2,7 @@
  * Base interfaces and classes for BL4 save file sections
  */
 
-import { getItemDisplayName, decodeItemSerial } from "../utils/serial-utils"
-
-function capitalize(s: string) {
-  if (!s) return s
-  return s.charAt(0).toUpperCase() + s.slice(1)
-}
+import { getItemDisplayName, tryDecodeSerial, buildNicnlSummary, normalizeNicnlLabel } from "../utils/serial-utils"
 
 // ===== CORE INTERFACES =====
 
@@ -142,92 +137,78 @@ export abstract class BaseInventorySection implements SlotBasedSection {
     const items = this.deserializeItems(saveData)
     const sections: Array<any> = []
 
-    // Create a section for each existing item
     items.forEach((item, index) => {
-      if (item && item.serial) {
-        // Decode the serial to extract structured info (type, level, rarity, stats)
-        let displayName = getItemDisplayName(item.serial)
-        let decoded: any = null
-        try {
-          decoded = decodeItemSerial(item.serial)
-        } catch (e) {
-          decoded = null
-        }
-
-        const typeLabel = decoded?.itemCategory ? String(decoded.itemCategory).replace(/_/g, ' ') : (decoded?.itemType ? String(decoded.itemType) : '')
-        const level = decoded?.stats?.level
-        const rarity = decoded?.stats?.rarity
-        const p = decoded?.stats?.primaryStat
-        const s = decoded?.stats?.secondaryStat
-        const equippedLabel = item.flags === 1 ? 'Equipped' : ''
-        const stateLabel = (() => {
-          switch (item.state_flags) {
-            case 1: return 'Seen'
-            case 3: return 'Favorite'
-            case 5: return 'Trash'
-            case 17: return 'Tag group 1'
-            case 33: return 'Tag group 2'
-            case 65: return 'Tag group 3'
-            case 129: return 'Tag group 4'
-            default: return ''
-          }
-        })()
-
-        // Build a concise description showing type/level/rarity/stats
-        const parts: string[] = []
-        if (typeLabel) parts.push(capitalize(String(typeLabel)))
-        if (level || level === 0) parts.push(`Lv${level}`)
-        if (rarity || rarity === 0) parts.push(`R${rarity}`)
-        if (p !== undefined) parts.push(`P:${p}`)
-        if (s !== undefined) parts.push(`S:${s}`)
-        if (equippedLabel) parts.push(equippedLabel)
-        if (stateLabel) parts.push(stateLabel)
-
-        const summary = parts.length > 0 ? parts.join(' • ') : displayName
-
-        sections.push({
-          id: `${this.id}_slot_${index}`,
-          title: `Item ${index + 1}`,
-          description: displayName,
-          // Provide raw metadata for UI surfaces that do not render inline fields
-          meta: {
-            serial: item.serial,
-            flags: item.flags,
-            state_flags: item.state_flags,
-            summary,
-            // parsed fields
-            itemCategory: decoded?.itemCategory ?? decoded?.itemType ?? null,
-            level: level ?? null,
-            rarity: rarity ?? null,
-            primaryStat: p ?? null,
-            secondaryStat: s ?? null,
-            partsCount: decoded?.stats?.parts ? decoded.stats.parts.length : 0,
-            manufacturer: decoded?.stats?.manufacturer ?? null
-          },
-          icon: 'pi pi-box',
-          // No inline fields for slot sections - all item editing happens in the top-level ItemListEditor modal
-          fields: [] as readonly FieldDefinition[],
-          actions: [
-            {
-              id: 'copy-serial',
-              icon: 'pi pi-copy',
-              // Include the actual serial in the action label so copy buttons can show it
-              label: item.serial,
-              variant: 'secondary' as const
-            },
-            {
-              id: 'remove-item',
-              icon: 'pi pi-trash',
-              variant: 'danger' as const
-            },
-            {
-              id: 'edit-item',
-              icon: 'pi pi-pen-to-square',
-              variant: 'secondary' as const
-            },
-          ]
-        })
+      if (!item || !item.serial) {
+        return
       }
+
+      const displayName = getItemDisplayName(item.serial)
+
+      const decoded = tryDecodeSerial(item.serial)
+
+      const normalizedItemType = normalizeNicnlLabel(decoded?.itemTypeName)
+      const normalizedManufacturer = normalizeNicnlLabel(decoded?.manufacturer)
+      const normalizedWeaponType = normalizeNicnlLabel(decoded?.weaponType)
+
+      const stateLabel = (() => {
+        switch (item.state_flags) {
+          case 1: return 'Seen'
+          case 3: return 'Favorite'
+          case 5: return 'Trash'
+          case 17: return 'Tag group 1'
+          case 33: return 'Tag group 2'
+          case 65: return 'Tag group 3'
+          case 129: return 'Tag group 4'
+          default: return ''
+        }
+      })()
+      const summary = buildNicnlSummary(decoded, {
+        includeEquipped: item.flags === 1,
+        stateLabel,
+        fallback: displayName || item.serial
+      })
+
+      sections.push({
+        id: `${this.id}_slot_${index}`,
+        title: `Item ${index + 1}`,
+        description: summary,
+        meta: {
+          serial: item.serial,
+          flags: item.flags,
+          state_flags: item.state_flags,
+          summary,
+          itemCategory: normalizedItemType || null,
+          itemTypeName: normalizedItemType || null,
+          manufacturer: normalizedManufacturer || null,
+          weaponType: normalizedWeaponType || null,
+          level: decoded?.level ?? null,
+          rarity: null,
+          primaryStat: null,
+          secondaryStat: null,
+          randomSeed: decoded?.randomSeed ?? null,
+          partsCount: decoded?.parts?.length ?? 0
+        },
+        icon: 'pi pi-box',
+        fields: [] as readonly FieldDefinition[],
+        actions: [
+          {
+            id: 'copy-serial',
+            icon: 'pi pi-copy',
+            label: item.serial,
+            variant: 'secondary' as const
+          },
+          {
+            id: 'remove-item',
+            icon: 'pi pi-trash',
+            variant: 'danger' as const
+          },
+          {
+            id: 'edit-item',
+            icon: 'pi pi-pen-to-square',
+            variant: 'secondary' as const
+          }
+        ]
+      })
     })
 
     return sections
